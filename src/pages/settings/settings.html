@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>
+      Settings
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+
+  <ion-list>
+
+    <!-- Show Demo Servers -->
+    <ion-item class="_list-item">
+      <ion-label>Show Demo Servers</ion-label>
+      <ion-toggle [(ngModel)]="demoServers" (ionChange)=setDemoServers($event)></ion-toggle>
+    </ion-item>
+
+    <!-- List Refresh Rate -->
+    <ion-item class="_list-item">
+        <ion-label>Server List Refresh</ion-label>
+        <ion-select [(ngModel)]="listRefresh" interface="action-sheet" (ionChange)=setListRefresh($event)>
+          <ion-option value="7">7 sec</ion-option>
+          <ion-option value="10">10 seconds</ion-option>
+          <ion-option value="15">15 seconds</ion-option>
+          <ion-option value="30">30 seconds</ion-option>
+          <ion-option value="60">1 minute</ion-option>
+        </ion-select>
+    </ion-item>
+
+
+
+    <!-- Stats Refresh Rate -->
+    <ion-item class="_list-item">
+      <ion-label>Stats Refresh Rate</ion-label>
+      <ion-select [(ngModel)]="statsRefresh" interface="action-sheet" (ionChange)=setStatsRefresh($event)>
+        <ion-option value="7">7 seconds</ion-option>
+        <ion-option value="10">10 seconds</ion-option>
+        <ion-option value="15">15 seconds</ion-option>
+        <ion-option value="30">30 seconds</ion-option>
+        <ion-option value="60">1 minute</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item class="_list-item">
+      <ion-label>Show Hints</ion-label>
+      <ion-toggle [(ngModel)]="showHints" (ionChange)=setShowHints($event)></ion-toggle>
+    </ion-item>
+
+  </ion-list>
+
+  <div class=_gray _font-small *ngIf="showHints === true">
+    <p><b>Show Demo Servers:</b> The main servers list view will show two
+    demo servers above the servers you add.</p>
+    <p><b>Server List Refresh:</b> The stats on the main servers list view will
+      refresh at the rate you select.</p>
+    <p><b>Stats List Refresh:</b> The stats and graphs on a server view will
+      refresh at the rate you select.</p>
+
+
+  </div>
+
+</ion-content>

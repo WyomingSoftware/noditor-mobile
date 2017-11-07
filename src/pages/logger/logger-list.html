@@ -1,0 +1,39 @@
+<ion-header>
+    <ion-navbar color="primary">
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>Logger</ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content>
+
+    <!-- MESSAGES -->
+    <ion-list no-lines>
+      <ion-item-sliding *ngFor="let item of messages; let i = index;">
+        <button style="border-bottom: thin solid lightgrey;"
+            ion-item  (click)="itemTapped(item)">
+            <!-- div item-left class="_gray _font-large" style="width:30px;text-align:right;">{{i+1}}</div-->
+            <ion-icon item-left name="{{item.icon}}" class="_gray">
+            </ion-icon>
+
+            <h3 class="_font-xsmall"><span class="_primary _bold">{{i+1}}: </span>{{item.location}}</h3>
+            <div class="_font-xsmall _gray">{{item._dttm}}</div>
+            <div class="_font-xsmall _gray" item-right>{{item.timeAgo}} ago</div>
+            <p class="_font-xsmall">{{item.message}}</p>
+
+        </button>
+        <ion-item-options side="left">
+          <button ion-button color="danger" (click)="delete($event, i)"><ion-icon name="trash"></ion-icon>Delete</button>
+        </ion-item-options>
+
+      </ion-item-sliding>
+    </ion-list>
+
+    <!-- NO DRIVES MSG -->
+    <div class="_center _gray _font-medium" *ngIf="messages.length == 0">
+      There are no messages in the logger.
+    </div>
+
+</ion-content>

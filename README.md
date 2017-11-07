@@ -1,26 +1,13 @@
-This is a starter template for [Ionic](http://ionicframework.com/docs/) projects.
 
-## How to use this template
+## Noditor Mobile
 
-*This template does not work on its own*. The shared files for each starter are found in the [ionic2-app-base repo](https://github.com/ionic-team/ionic2-app-base).
 
-To use this template, either create a new ionic project using the ionic node.js utility, or copy the files from this repository into the [Starter App Base](https://github.com/ionic-team/ionic2-app-base).
 
-### With the Ionic CLI:
+### Error: Cannot find module '@angular/tsc-wrapped/src/tsc'
 
-Take the name after `ionic2-starter-`, and that is the name of the template to be used when using the `ionic start` command below:
+Error received after updating to Ionic version 3.8.0. See this post https://github.com/ionic-team/ionic/issues/12357.
 
-```bash
-$ sudo npm install -g ionic cordova
-$ ionic start myTabs tabs
+Fix:
 ```
-
-Then, to run it, cd into `myTabs` and run:
-
-```bash
-$ ionic cordova platform add ios
-$ ionic cordova run ios
+npm install '@angular/tsc-wrapped --save
 ```
-
-Substitute ios for android if not on a Mac.
-

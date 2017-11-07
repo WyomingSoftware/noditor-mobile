@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-navbar  color="primary">
+    <ion-title>{{serverName}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="editServer($event, server)">
+        <ion-icon name="create"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="chartType" color="primary" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="process">
+        Heap Mem
+      </ion-segment-button>
+      <ion-segment-button value="os">
+        OS Mem
+      </ion-segment-button>
+      <ion-segment-button value="cpu">
+        CPU
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
+
+        <div class="chart-container" style="height:80%">
+            <canvas id="canvas" #barCanvas></canvas>
+        </div>
+
+        <!-- data -->
+        <br/>
+
+        <ion-list *ngIf="server.data && server.data.stats">
+          <ion-list-header>
+            Peaks
+          </ion-list-header>
+
+            <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
+              <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
+            </ion-item>
+            <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
+              <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
+            </ion-item>
+
+        </ion-list>
+
+
+  <!--ion-list>
+      <button ion-item *ngFor="let server of servers">
+        {{server.name}}
+        <div class="_gray _font-small">{{server.url}}</div>
+        <ion-icon [hidden]="!server.statusError" class="_red" name="eye-off" item-end></ion-icon>
+        <div *ngIf="server.data">
+          <div [hidden]="server.statusError" class="_font-small">
+            {{server.data.stats.memoryUsage.heapUsed}} Mb / {{server.data.stats.memoryUsage.heapTotal}} Mb
+          </div>
+          <div [hidden]="server.statusError" class="_gray _font-xsmall">
+            Peak: {{server.data.peakHeapUsed}} Mb / {{server.data.peakHeapTotal}} Mb
+          </div>
+        </div>
+      </button>
+  </ion-list-->
+
+
+</ion-content>

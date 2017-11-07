@@ -1,39 +1,71 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
-import { MyApp } from './app.component';
+import { HttpModule} from '@angular/http';
+import { IonicStorageModule } from '@ionic/storage';
+import { NoditorApp } from './app.component';
 
-import { AboutPage } from '../pages/about/about';
-import { ContactPage } from '../pages/contact/contact';
-import { HomePage } from '../pages/home/home';
+import { SettingsPage } from '../pages/settings/settings';
+import { LoggerListPage } from '../pages/logger/logger-list';
+import { LoggerPage } from '../pages/logger/logger';
+import { ServersPage } from '../pages/servers/servers';
+import { StatsDetailsPage } from '../pages/stats/stats-details';
+import { ServerSetupModal } from '../pages/servers/server-setup';
 import { TabsPage } from '../pages/tabs/tabs';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+
+// COMPONENTS
+import { MessageComponent } from '../components/message';
+
+// PROVIDERS
+import { HttpService } from '../providers/httpService';
+import { UTILS} from '../providers/utils';
+import { ServersService } from '../providers/serversService';
+import { LoggerService } from '../providers/loggerService';
+
 @NgModule({
   declarations: [
-    MyApp,
-    AboutPage,
-    ContactPage,
-    HomePage,
+    NoditorApp,
+    MessageComponent,
+    SettingsPage,
+    LoggerListPage,
+    LoggerPage,
+    ServersPage,
+    StatsDetailsPage,
+    ServerSetupModal,
     TabsPage
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp)
+    HttpModule,
+    IonicModule.forRoot(NoditorApp),
+    IonicStorageModule.forRoot({
+      name: '__noditordb',
+         driverOrder: ['websql', 'indexeddb' ]
+    })
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp,
-    AboutPage,
-    ContactPage,
-    HomePage,
+    NoditorApp,
+    SettingsPage,
+    LoggerListPage,
+    LoggerPage,
+    ServersPage,
+    StatsDetailsPage,
+    ServerSetupModal,
     TabsPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
+    UTILS,
+    HttpService,
+    LoggerService,
+    ServersService,
+    MessageComponent,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

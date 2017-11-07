@@ -1,0 +1,31 @@
+<ion-header>
+    <ion-navbar color="primary">
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>Log Details</ion-title>
+    </ion-navbar>
+</ion-header>
+
+
+<ion-content class="message">
+
+    <br/>
+    <div class="_gray _center _font-large">
+      <ion-icon name="{{log.icon}}" style="font-size:220%;"></ion-icon>
+      <div class="_gray _font-small">{{log._dttm}}</div>
+      <div class="_gray _font-small">{{log.timeAgo}} ago</div>
+    </div>
+    <hr/>
+    <ion-card>
+        <ion-card-content>
+
+          <h2 class="_center">{{log.location}}</h2>
+          <hr/>
+          <h2 class="_gray">{{log.message}}</h2>
+          <hr/>
+          <pre><code class="_gray">{{data}}</code></pre>
+        </ion-card-content>
+    </ion-card>
+
+</ion-content>

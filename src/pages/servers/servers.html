@@ -1,0 +1,109 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>Node.js Servers</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="addServer()">
+        <ion-icon name="add-circle"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content padding>
+  <ion-list>
+    <ion-item-sliding *ngFor="let server of servers">
+      <button ion-item (click)="serverSelected($event, server)">
+        <h1 class="_primary">{{server.name}}</h1>
+        <div class="_font-large">{{server.url}}</div>
+
+
+        <!-- error icons -->
+        <div *ngIf="server.data" item-end>
+          <!-- Stats returned -->
+          <ion-icon *ngIf="server.data.status == 200 && server.data.stats" class="_gray _icon" name="eye"></ion-icon>
+          <!-- Waiting for stats to be returnedreturned -->
+          <ion-icon *ngIf="server.data.status == 200 && !server.data.stats" class="_purple _icon" name="eye"></ion-icon>
+          <!-- No network connection, possible timeout -->
+          <ion-icon *ngIf="server.data.status == 0" class="_red _icon" name="eye-off"></ion-icon>
+          <!-- Internal server error -->
+          <!--ion-icon *ngIf="server.data.status == 500" class="_red _icon_smaller" name="hand"></ion-icon-->
+          <!-- Noditor not running -->
+          <ion-icon *ngIf="server.data.status == 409" class="_purple _icon" name="flash"></ion-icon>
+
+
+          <ion-icon *ngIf="server.data.status != 0 && server.data.status != 409
+          && server.data.status != 200 && server.data.status != 500"
+            class="_red _icon_alarm" name="md-alarm">
+          </ion-icon>
+        </div>
+
+
+
+        <!-- error text -->
+        <div *ngIf="server.data">
+          <div *ngIf="server.data.status != 200 && server.data.status != 409"
+            class="_red _font-small" >
+            Status: {{server.data.status}} - {{server.data.statusText}}
+          </div>
+          <!-- noditor is not running -->
+          <div *ngIf="server.data.status == 409" class="_gray _font-small _purple">
+            Noditor has been paused.
+          </div>
+        </div>
+
+        <!-- data -->
+        <div *ngIf="server.data && server.data.stats && server.data.peaks">
+          <!-- has memoryUsage -->
+          <div class="_font-small" *ngIf="server.data.stats.memoryUsage">
+            {{server.data.stats.memoryUsage.heapUsed}} Mb / {{server.data.stats.memoryUsage.heapTotal}} Mb
+          </div>
+          <div class="_gray _font-xsmall" *ngIf="server.data.peaks">
+            Peak: {{server.data.peaks.peakHeapUsed}} Mb / {{server.data.peaks.peakHeapTotal}} Mb
+          </div>
+          <div class="_gray _font-xsmall">
+            {{server.data.stats.nodeVersion}} / Uptime {{server.data.stats.uptime}}
+          </div>
+        </div>
+
+
+        <!-- waiting on stats -->
+        <div *ngIf="server.data && !server.data.stats && server.data.status == 200"
+          class="_gray _font-small _purple">
+          Status: {{server.data.status}} - Waiting on stats.
+        </div>
+      </button>
+
+
+      <!-- sliding options -->
+      <ion-item-options side="left" *ngIf="!server.demo">
+        <button ion-button *ngIf="server.data && server.data.status == 409"
+            (click)="pauseOrResume($event, server, 'start')" color="secondary" class="_slider-width">
+          Resume<br/><br/>
+          <ion-icon name="sync"></ion-icon>
+        </button>
+        <button ion-button *ngIf="server.data && server.data.status != 409"
+            (click)="pauseOrResume($event, server, 'stop')" color="dark" class="_slider-width">
+          Pause<br/><br/>
+          <ion-icon name="power"></ion-icon>
+        </button>
+        <button ion-button color="primary" class="_slider-width" (click)="editServer($event, server)">
+          Edit<br/><br/>
+          <ion-icon name="create"></ion-icon>
+        </button>
+        <button ion-button color="danger" class="_slider-width" (click)="deleteServer($event, server)">
+          Delete<br/><br/>
+          <ion-icon name="trash"></ion-icon>
+        </button>
+      </ion-item-options>
+
+
+    </ion-item-sliding>
+  </ion-list>
+
+  <div class="_gray" style="margin:0px 20px 20px 20px;" *ngIf="showHints === true">
+    Slide right to view actions (Pause, Resume, Edit, and Delete). <p>Demo servers do not have actions.</p>
+  </div>
+
+
+</ion-content>
