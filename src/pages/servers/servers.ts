@@ -40,7 +40,7 @@ export class ServersPage {
       this.showHints = (window.localStorage.getItem("noditor.showHints") === 'true');
       this.timeoutValue = parseInt(window.localStorage.getItem("noditor.listRefresh")) || 7;
 
-      console.log('>>>>>>> ServersPage', this.showDemos, this.showHints);
+      //console.log('>>>>>>> ServersPage');
     }
     catch(error){
       this.msg.showError('ServersPage.constructor', 'Failed to construct view.', error);
@@ -50,7 +50,7 @@ export class ServersPage {
 
   ionViewDidLoad(){
     try{
-      console.log('ServersPage.ionViewDidLoad -----------------');
+      //console.log('ServersPage.ionViewDidLoad -----------------');
       this.loadServersFromStorage();
 
       this.events.subscribe('demoServers:changed', (flag) => {
@@ -63,7 +63,6 @@ export class ServersPage {
       this.events.subscribe('server:changed', this.serverChangedHandler);
       this.events.subscribe('listRefresh:changed', (val) => {
         this.timeoutValue = parseInt(val);
-        console.log('listRefresh:changed.VAL', typeof this.timeoutValue, this.timeoutValue);
       });
     }
     catch(error){
@@ -75,7 +74,7 @@ export class ServersPage {
   ionViewDidEnter(){
     try{
       var self = this;
-      console.log('ServersPage.ionViewDidEnter -----------------');
+      //console.log('ServersPage.ionViewDidEnter -----------------');
       this.timer = setInterval(
         function(){self.refresh();
       }, this.timeoutValue * 1000);
@@ -89,7 +88,6 @@ export class ServersPage {
 
   ionViewWillLeave(){
     try{
-      console.log('ServersPage.ionViewWillLeave. CLEAR TIMER')
       clearInterval(this.timer);
     }
     catch(error){
@@ -161,7 +159,7 @@ export class ServersPage {
 
 
   load(server, loader){
-    console.log(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top');
+    //console.log(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top');
     if(loader){ loader.present(); }
 
     this.httpService.get(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top', 5)

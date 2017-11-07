@@ -26,6 +26,21 @@
   </ion-toolbar>
 
 
+<!-- ERROR MSG -->
+<div class="_gray" *ngIf="errorMsg" style="margin:20px 20px 20px 20px;">
+    <div class="_red">{{errorMsg}}</div>
+    <p>Check the URL, both domain and port. Check that the server called
+    has the proper endpoint declared for the Noditor module.</p>
+    <p>Example (Restify):
+      <br/>
+
+      <span style="font-family:courier;">server.get('/noditor/:path/:passcode/:command', noditor.commands);</span>
+    </p>
+</div>
+
+
+<!-- CHART -->
+<div *ngIf="!errorMsg && server.data.stats" style="height:80%">
         <div class="chart-container" style="height:80%">
             <canvas id="canvas" #barCanvas></canvas>
         </div>
@@ -34,10 +49,9 @@
         <br/>
 
         <ion-list *ngIf="server.data && server.data.stats">
-          <ion-list-header>
+          <div class="_center _primary">
             Peaks
-          </ion-list-header>
-
+          </div>
             <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
               <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
             </ion-item>
@@ -46,23 +60,7 @@
             </ion-item>
 
         </ion-list>
-
-
-  <!--ion-list>
-      <button ion-item *ngFor="let server of servers">
-        {{server.name}}
-        <div class="_gray _font-small">{{server.url}}</div>
-        <ion-icon [hidden]="!server.statusError" class="_red" name="eye-off" item-end></ion-icon>
-        <div *ngIf="server.data">
-          <div [hidden]="server.statusError" class="_font-small">
-            {{server.data.stats.memoryUsage.heapUsed}} Mb / {{server.data.stats.memoryUsage.heapTotal}} Mb
-          </div>
-          <div [hidden]="server.statusError" class="_gray _font-xsmall">
-            Peak: {{server.data.peakHeapUsed}} Mb / {{server.data.peakHeapTotal}} Mb
-          </div>
-        </div>
-      </button>
-  </ion-list-->
+</div>
 
 
 </ion-content>

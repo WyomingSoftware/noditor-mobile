@@ -21,6 +21,7 @@ export class StatsDetailsPage {
   heapUsed = [];
   chartType:string;
   timer:any;
+  errorMsg:string;
 
   labels = ["4:15", "5:00", "5:15", "5:30", "5:45", "6:00", "6:15","5:45", "6:00", "6:15"];
 
@@ -91,7 +92,7 @@ export class StatsDetailsPage {
           datasets: [{
               label: 'Process Memory',
               data: this.heapUsed,
-              backgroundColor: "green",
+              backgroundColor: "gray",
               borderColor: "rgba(255, 99, 132, 2)"
           }]
       },
@@ -127,16 +128,12 @@ export class StatsDetailsPage {
 
 
   load(){
-    //console.log('StatsDetailsPage.load()', this.server.url+'/noditor/'+this.server.path+'/'+this.server.passcode+'/stats');
+    this.errorMsg = null;
     this.httpService.get(this.server.url+'/noditor/'+this.server.path+'/'+this.server.passcode+'/stats', 5)
     .then((data: any) => {
       try{
-        //console.log('StatsDetailsPage.load DATA', data)
+        console.log('StatsDetailsPage.load DATA', data)
         this.server.data = data;
-        if(this.server.data.status != "200"){
-          throw {statusText:"API did not return 200. "+this.server.data.status};
-        }
-        else{
             if(this.server.data.stats){ // stats may not have loaded at the server right at its startup
               this.server.data.peaks.peakHeapTotal = this.convertToMb(this.server.data.peaks.peakHeapTotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
               this.server.data.peaks.peakHeapUsed = this.convertToMb(this.server.data.peaks.peakHeapUsed).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -156,7 +153,6 @@ export class StatsDetailsPage {
               this.buildChart();
 
             }
-        }
       }
       catch(error){
         console.log('HTTP.inner.error', error);
@@ -167,6 +163,7 @@ export class StatsDetailsPage {
       this.server.data = {status:error.status, statusText:'Unknown error'};
       if(error.status === 0) this.server.data.statusText = "Unable to connect to the target server.";
       console.log('SERVER', this.server)
+      this.errorMsg = error.toString();
     });
   }
 

@@ -1,5 +1,10 @@
 
-## Noditor Mobile
+## Noditor Mobile App
+The Noditor Mobile App accesses Node.js instances that have installed the Noditor Module. The app will
+display high-level and simple runtime statistics.
+
+The app is available for free for iOS and Android. The Noditor Module is also free. Its all free.
+
 
 
 
