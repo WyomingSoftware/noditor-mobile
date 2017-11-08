@@ -1,23 +1,17 @@
 <ion-header>
   <ion-navbar  color="primary">
     <ion-title>{{serverName}}</ion-title>
-    <ion-buttons end>
-      <button ion-button icon-only (click)="editServer($event, server)">
-        <ion-icon name="create"></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
-
   <ion-toolbar>
     <ion-segment [(ngModel)]="chartType" color="primary" (ionChange)="segmentChanged($event)">
-      <ion-segment-button value="process">
-        Heap Mem
+      <ion-segment-button value="heap">
+        Heap
       </ion-segment-button>
       <ion-segment-button value="os">
-        OS Mem
+        OS
       </ion-segment-button>
       <ion-segment-button value="cpu">
         CPU
@@ -27,40 +21,68 @@
 
 
 <!-- ERROR MSG -->
-<div class="_gray" *ngIf="errorMsg" style="margin:20px 20px 20px 20px;">
-    <div class="_red">{{errorMsg}}</div>
-    <p>Check the URL, both domain and port. Check that the server called
-    has the proper endpoint declared for the Noditor module.</p>
-    <p>Example (Restify):
-      <br/>
-
-      <span style="font-family:courier;">server.get('/noditor/:path/:passcode/:command', noditor.commands);</span>
-    </p>
-</div>
+  <div class="_gray" *ngIf="errorMsg" style="margin:20px 20px 20px 20px;">
+      <div class="_red">{{errorMsg}}</div>
+      <div *ngIf="httpErrorFlag">
+        <p>Check the URL, both domain and port. Check that the server called
+        has the proper endpoint declared for the Noditor module.</p>
+        <p>Example (Restify):
+          <br/>
+          <span style="font-family:courier;">server.get('/noditor/:path/:passcode/:command', noditor.commands);</span>
+        </p>
+      </div>
+  </div>
 
 
 <!-- CHART -->
-<div *ngIf="!errorMsg && server.data.stats" style="height:80%">
-        <div class="chart-container" style="height:80%">
-            <canvas id="canvas" #barCanvas></canvas>
-        </div>
+  <div [hidden]="!loaded || chartType != 'heap'" class="chart-container" style="height:70%; width:95%;">
+      <canvas id="canvasHEAP" #heapChart></canvas>
+  </div>
 
-        <!-- data -->
-        <br/>
+  <div [hidden]="!loaded || chartType != 'os'" class="chart-container" style="height:70%; width:95%;">
+      <canvas id="canvasOS" #osChart></canvas>
+  </div>
+  <div [hidden]="!loaded || chartType != 'cpu'" class="chart-container" style="height:70%; width:95%;">
+      <canvas id="canvasCPU" #cpuChart></canvas>
+  </div>
 
-        <ion-list *ngIf="server.data && server.data.stats">
-          <div class="_center _primary">
-            Peaks
-          </div>
-            <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
-              <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
-            </ion-item>
-            <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
-              <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
-            </ion-item>
 
-        </ion-list>
+
+
+<br/>
+<div class="_center _gray" [hidden]="!loaded"
+  style="border:solid black 1px;width:95%;margin-bottom:5px;padding-top:5px;padding-bottom:5px;">
+  Node vrs: <b>{{serverProperties.nodeVersion}}</b>
+  <br/>Host name: <b>{{serverProperties.hostName}}</b>
+  <br/>Uptime days: <b>{{serverProperties.upTime}}</b>
 </div>
+<br/>
+
+<!-- HEAP -->
+  <ion-list [hidden]="!loaded || chartType != 'heap'" >
+    <div class="_center _primary">
+      Peaks
+    </div>
+      <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
+        <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
+      </ion-item>
+      <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
+        <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
+      </ion-item>
+  </ion-list>
+
+<!-- HEAP -->
+  <ion-list [hidden]="!loaded || chartType != 'os'" >
+    <div class="_center _primary">
+      OS Memory
+    </div>
+      <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
+        <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
+      </ion-item>
+      <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
+        <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
+      </ion-item>
+  </ion-list>
 
 
 </ion-content>
