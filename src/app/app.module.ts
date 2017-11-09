@@ -19,6 +19,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 
 // COMPONENTS
 import { MessageComponent } from '../components/message';
+import { HintsComponent } from '../components/hints';
 
 // PROVIDERS
 import { HttpService } from '../providers/httpService';
@@ -30,6 +31,7 @@ import { LoggerService } from '../providers/loggerService';
   declarations: [
     NoditorApp,
     MessageComponent,
+    HintsComponent,
     SettingsPage,
     LoggerListPage,
     LoggerPage,
@@ -66,6 +68,7 @@ import { LoggerService } from '../providers/loggerService';
     LoggerService,
     ServersService,
     MessageComponent,
+    HintsComponent,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
