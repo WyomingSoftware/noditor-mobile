@@ -4,17 +4,23 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content>
-  <ion-toolbar>
+<ion-content padding>
+  <ion-toolbar class="_center">
     <ion-segment [(ngModel)]="chartType" color="primary" (ionChange)="segmentChanged($event)">
       <ion-segment-button value="heap">
         Heap
+      </ion-segment-button>
+      <ion-segment-button value="external">
+        External
       </ion-segment-button>
       <ion-segment-button value="os">
         OS
       </ion-segment-button>
       <ion-segment-button value="cpu">
-        CPU
+        Process
+      </ion-segment-button>
+      <ion-segment-button value="info">
+        Info
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
@@ -33,56 +39,63 @@
       </div>
   </div>
 
+<br/>
 
-<!-- CHART -->
-  <div [hidden]="!loaded || chartType != 'heap'" class="chart-container" style="height:70%; width:95%;">
+<!-- CHARTS -->
+  <div [hidden]="!loaded || chartType != 'heap'" class="chart-container" style="height:75%; width:100%;margin-bottom:45px;">
       <canvas id="canvasHEAP" #heapChart></canvas>
   </div>
-
-  <div [hidden]="!loaded || chartType != 'os'" class="chart-container" style="height:70%; width:95%;">
+  <div [hidden]="!loaded || chartType != 'external'" class="chart-container" style="height:60%; width:100%;margin-bottom:45px;">
+      <canvas id="canvasEXTERNAL" #externalChart></canvas>
+  </div>
+  <div [hidden]="!loaded || chartType != 'os'" class="chart-container" style="height:40%; width:100%;margin-bottom:45px;">
       <canvas id="canvasOS" #osChart></canvas>
   </div>
-  <div [hidden]="!loaded || chartType != 'cpu'" class="chart-container" style="height:70%; width:95%;">
+  <div [hidden]="!loaded || chartType != 'cpu'" class="chart-container" style="height:40%; width:100%;margin-bottom:45px;">
       <canvas id="canvasCPU" #cpuChart></canvas>
   </div>
 
 
 
+<!-- SERVER INFO -->
+  <ion-list [hidden]="!loaded || chartType != 'info'" class="_well"
+    style="border:solid black 1px;width:95%;margin-top:10px;padding-top:8px;padding-bottom:5px;">
+    <div class="_bold _primary">
+      Server Info
+    </div>
+    <ion-item class="_gray">Node Vrs: <b>{{serverProperties.nodeVersion}}</b></ion-item>
+    <ion-item class="_gray">Host name: <b>{{serverProperties.hostName}}</b></ion-item>
+    <ion-item class="_gray">Uptime days: <b>{{serverProperties.upTime}}</b></ion-item>
+  </ion-list>
 
-<br/>
-<div class="_center _gray" [hidden]="!loaded"
-  style="border:solid black 1px;width:95%;margin-bottom:5px;padding-top:5px;padding-bottom:5px;">
-  Node vrs: <b>{{serverProperties.nodeVersion}}</b>
-  <br/>Host name: <b>{{serverProperties.hostName}}</b>
-  <br/>Uptime days: <b>{{serverProperties.upTime}}</b>
-</div>
-<br/>
 
 <!-- HEAP -->
-  <ion-list [hidden]="!loaded || chartType != 'heap'" >
-    <div class="_center _primary">
+  <ion-list [hidden]="!loaded || chartType != 'heap'" class="_well"
+    style="border:solid black 1px;width:100%;margin-bottom:45px;padding-top:8px;padding-bottom:5px;">
+    <div class="_bold _primary _center">
       Peaks
     </div>
-      <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
-        <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
-      </ion-item>
-      <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
-        <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
-      </ion-item>
+    <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
+      <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
+    </ion-item>
+    <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
+      <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
+    </ion-item>
   </ion-list>
 
-<!-- HEAP -->
-  <ion-list [hidden]="!loaded || chartType != 'os'" >
-    <div class="_center _primary">
-      OS Memory
-    </div>
-      <ion-item class="_gray">Heap Used: <b>{{server.data.peaks.peakHeapUsed}} Mb</b>
-        <div style="font-size:80%">{{server.data.peaks.peakHeapUsedDttm}}</div>
-      </ion-item>
-      <ion-item class="_gray">Heap Total: <b>{{server.data.peaks.peakHeapTotal}} Mb</b>
-        <div style="font-size:80%">{{server.data.peaks.peakHeapTotalDttm}}</div>
-      </ion-item>
-  </ion-list>
 
+  <!-- HINTS -->
+    <hints-selector *ngIf="showHints === true && loaded"
+        [hints]="['<b>Heap:</b> Shows heapTotal and heapUsed as related to V8 memory usage in MB.',
+
+        '<b>External:</b> Shows the memory usage of C++ objects bound to JavaScript objects managed by V8 in MB.',
+
+        '<b>OS:</b> Shows available OS memeory in GB.',
+
+        '<b>Process:</b> Shows the user and system CPU time usage of the current process as properties user and system.
+        These values measure time (in seconds) spent in user and system code for each stats gathering period.',
+
+        '<b>Info:</b> High level server information.']">
+    </hints-selector>
 
 </ion-content>

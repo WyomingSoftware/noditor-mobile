@@ -3,16 +3,20 @@ import { NavController, NavParams, ModalController, Events, LoadingController } 
 import { HttpService } from '../../providers/httpService';
 import { Chart } from 'chart.js';
 import { ServerSetupModal } from '../servers/server-setup';
+import { HintsComponent } from '../../components/hints';
+import { MessageComponent } from '../../components/message';
 
 
 // https://www.joshmorony.com/adding-responsive-charts-graphs-to-ionic-2-applications/
 @Component({
   selector: 'page-stats-details',
-  templateUrl: 'stats-details.html'
+  templateUrl: 'stats-details.html',
+  providers:[HintsComponent]
 })
 export class StatsDetailsPage {
 
   @ViewChild('heapChart') __heapChart;
+  @ViewChild('externalChart') __externalChart;
   @ViewChild('osChart') __osChart;
   @ViewChild('cpuChart') __cpuChart;
 
@@ -24,6 +28,9 @@ export class StatsDetailsPage {
   heapUsed = [];
   heapTotal = [];
   rss = [];
+
+  externalChart:any; // External
+  externalLabels = [];
   external = [];
 
   osChart:any; // OS
@@ -35,18 +42,15 @@ export class StatsDetailsPage {
   cpuProcessUser = [];
   cpuProcessSystem = [];
 
-  //serverURL:any;
   serverName:string;
   server:any = {data:null};
-
-
-
 
   chartType:string; // heap, os, cpu
   timer:any;
   errorMsg:string;
   httpErrorFlag:boolean = false;
   loaded:boolean = false;
+  showHints:boolean;
 
 
   constructor(public navCtrl: NavController,
@@ -54,19 +58,19 @@ export class StatsDetailsPage {
       navParams:NavParams,
       public modalCtrl:ModalController,
       public events:Events,
-      public loadingCtrl:LoadingController) {
+      public loadingCtrl:LoadingController,
+      private msg:MessageComponent) {
 
     this.server = navParams.get('server');
     this.serverName = this.server.name; // Need to draw title right away
     this.chartType = window.localStorage.getItem("noditor.lastChartType") || 'heap';
-
-
-    console.log('>>>>>>> StatsDetailsPage', this.server)
+    this.showHints = (window.localStorage.getItem("noditor.showHints") === 'true');
   }
 
 
   ionViewDidEnter() {
     this.buildHeapChart(); // Init heapChart
+    this.buildExternalChart(); // Init heapChart
     this.buildOsChart(); // Init osChart
     this.buildCpuChart(); // Init cpuChart
 
@@ -80,8 +84,43 @@ export class StatsDetailsPage {
   }
 
 
+  ionViewDidLoad(){
+    try{
+      this.events.subscribe('showHints:changed', this.setHintsFlagEventHandler);
+    }
+    catch(error){
+      this.msg.showError('StatsDetailsPage.ionViewDidLoad', 'Failed to set events.', error);
+    }
+  }
+
+
   ionViewWillLeave(){
-    clearInterval(this.timer);
+    try{
+      clearInterval(this.timer);
+    }
+    catch(error){
+      this.msg.showError('ServerSetupModal.ionViewWillLeave', 'Failed to clear interval.', error);
+    }
+
+  }
+
+
+  ionViewWillUnload(){
+    try{
+      this.events.unsubscribe('showHints:changed', this.setHintsFlagEventHandler);
+    }
+    catch(error){
+      this.msg.showError('ServerSetupModal.ionViewWillUnload', 'Failed to clear event.', error);
+    }
+  }
+
+  /**
+    *
+    * data:boolean => flag
+    */
+  setHintsFlagEventHandler= (flag:any) => {
+    console.log('ServerSetupModal.setHintsFlagEventHandler', flag)
+    this.showHints = flag;
   }
 
 
@@ -112,14 +151,40 @@ export class StatsDetailsPage {
               hidden: true,
               backgroundColor: "blue",
               borderColor: "silver"
-          },
+          }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{
+            stacked: false,
+            gridLines: {
+              display: true,
+              color: "rgba(255,99,132,0.2)"
+            }
+          }],
+          xAxes: [{
+            gridLines: {
+              display: true
+            }
+          }]
+        }
+      }
+    });
+  }
+
+
+  buildExternalChart(){
+    this.externalChart = new Chart(this.__externalChart.nativeElement, {
+      type: 'bar',
+      maintainAspectRatio: false,
+      data: {
+          labels:this.externalLabels,
+          datasets: [
           {
               label: 'External',
               data: this.external,
-              //type: 'line',
-              //fill:false,
-              hidden: true,
-              backgroundColor: "red",
+              backgroundColor: "pink",
               borderColor: "silver"
           }]
       },
@@ -142,6 +207,7 @@ export class StatsDetailsPage {
       }
     });
   }
+
 
   buildOsChart(){
     this.osChart = new Chart(this.__osChart.nativeElement, {
@@ -179,6 +245,7 @@ export class StatsDetailsPage {
     });
   }
 
+
   buildCpuChart(){
     this.cpuChart = new Chart(this.__cpuChart.nativeElement, {
       type: 'line',
@@ -187,14 +254,14 @@ export class StatsDetailsPage {
           labels:this.cpuLabels,
           datasets: [
           {
-              label: 'User Process Seconds',
+              label: 'User Process',
               data: this.cpuProcessUser,
               type: 'line',
               fill:false,
               backgroundColor: "blue",
               borderColor: "pink"
           }, {
-              label: 'System Process Seconds',
+              label: 'System Process',
               data: this.cpuProcessSystem,
               type: 'line',
               fill:false,
@@ -281,17 +348,16 @@ export class StatsDetailsPage {
             this.server.data.stats[i].osFreemem = this.convertToGb(this.server.data.stats[i].osFreemem);
             this.server.data.stats[i].process.user = (this.server.data.stats[i].process.user/1000000);
             this.server.data.stats[i].process.system = (this.server.data.stats[i].process.system/1000000);
+
+            this.serverProperties.nodeVersion = this.server.data.stats[i].nodeVersion;
+            this.serverProperties.hostName = this.server.data.stats[i].hostname;
+            this.serverProperties.upTime = ( ((this.server.data.stats[i].uptime/60)/60)/24 ).toFixed(2); // days
           }
 
-          if(this.chartType === 'heap'){
-            this.graphHEAP();
-          }
-          else if(this.chartType === 'os'){
-            this.graphOS();
-          }
-          else if(this.chartType === 'cpu'){
-            this.graphCPU();
-          }
+          if(this.chartType === 'heap'){this.graphHEAP();}
+          else if(this.chartType === 'external'){this.graphEXTERNAL();}
+          else if(this.chartType === 'os'){this.graphOS();}
+          else if(this.chartType === 'cpu'){this.graphCPU();}
 
 
 
@@ -323,22 +389,34 @@ export class StatsDetailsPage {
     this.heapUsed = [];
     this.heapTotal = [];
     this.rss = [];
-    this.external = [];
 
     for(let i=0; i<this.server.data.stats.length; i++){
       this.heapLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
       this.heapUsed.push(Number(this.server.data.stats[i].memoryUsage.heapUsed));
       this.heapTotal.push(Number(this.server.data.stats[i].memoryUsage.heapTotal));
       this.rss.push(Number(this.server.data.stats[i].memoryUsage.rss));
-      this.external.push(Number(this.server.data.stats[i].memoryUsage.external));
     }
     this.heapChart.data.labels = this.heapLabels;
     this.heapChart.data.datasets[0].data = this.heapUsed;
     this.heapChart.data.datasets[1].data = this.heapTotal;
     this.heapChart.data.datasets[2].data = this.rss;
-    this.heapChart.data.datasets[3].data = this.external;
-console.log(this.heapChart.data.datasets)
+
     this.heapChart.update();
+  }
+
+  graphEXTERNAL(){
+    console.log('GRAPH EXTERNAL');
+    this.externalLabels = [];
+    this.external = [];
+
+    for(let i=0; i<this.server.data.stats.length; i++){
+      this.externalLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
+      this.external.push(Number(this.server.data.stats[i].memoryUsage.external));
+    }
+    this.externalChart.data.labels = this.externalLabels;
+    this.externalChart.data.datasets[0].data = this.external;
+
+    this.externalChart.update();
   }
 
 
@@ -367,9 +445,6 @@ console.log(this.heapChart.data.datasets)
       this.cpuLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
       this.cpuProcessUser.push(this.server.data.stats[i].process.user);
       this.cpuProcessSystem.push(this.server.data.stats[i].process.system);
-      this.serverProperties.nodeVersion = this.server.data.stats[i].nodeVersion;
-      this.serverProperties.hostName = this.server.data.stats[i].hostname;
-      this.serverProperties.upTime = ( ((this.server.data.stats[i].uptime/60)/60)/24 ).toFixed(2); // days
     }
     this.cpuChart.data.labels = this.cpuLabels;
     this.cpuChart.data.datasets[0].data = this.cpuProcessUser;
