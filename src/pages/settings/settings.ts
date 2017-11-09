@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { NavController, Events } from 'ionic-angular';
+import { HintsComponent } from '../../components/hints';
+
 
 @Component({
   selector: 'page-settings',
-  templateUrl: 'settings.html'
+  templateUrl: 'settings.html',
+  providers:[HintsComponent]
 })
 export class SettingsPage {
 
@@ -20,7 +23,6 @@ export class SettingsPage {
     this.listRefresh = parseInt(window.localStorage.getItem("noditor.listRefresh")) || 7;
     this.statsRefresh = parseInt(window.localStorage.getItem("noditor.statsRefresh")) || 7;
   }
-
 
 
   setListRefresh(){
@@ -43,7 +45,6 @@ export class SettingsPage {
 
   setShowHints(){
     window.localStorage.setItem("noditor.showHints", this.showHints.toString());
-    console.log(this.showHints, typeof this.showHints)
     this.events.publish('showHints:changed', this.showHints);
   }
 

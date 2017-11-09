@@ -49,15 +49,13 @@
 
   </ion-list>
 
-  <div class=_gray _font-small *ngIf="showHints === true">
-    <p><b>Show Demo Servers:</b> The main servers list view will show two
-    demo servers above the servers you add.</p>
-    <p><b>Server List Refresh:</b> The stats on the main servers list view will
-      refresh at the rate you select.</p>
-    <p><b>Stats List Refresh:</b> The stats and graphs on a server view will
-      refresh at the rate you select.</p>
 
+<!-- HINTS -->
+  <hints-selector *ngIf="showHints === true"
+      [hints]="['<b>Show Demo Servers:</b> The main servers list view will show two demo servers above the servers you add.',
+                '<b>Server List Refresh:</b> The stats on the main servers list view will refresh at the rate you select.',
+                'Stats List Refresh:</b> The stats and graphs on a server view willrefresh at the rate you select.']">
+  </hints-selector>
 
-  </div>
 
 </ion-content>

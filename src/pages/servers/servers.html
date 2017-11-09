@@ -101,9 +101,11 @@
     </ion-item-sliding>
   </ion-list>
 
-  <div class="_gray" style="margin:0px 20px 20px 20px;" *ngIf="showHints === true">
-    Slide right to view actions (Pause, Resume, Edit, and Delete). <p>Demo servers do not have actions.</p>
-  </div>
+<!-- HINTS -->
+  <hints-selector *ngIf="showHints === true"
+      [hints]="['<b>Actions:</b> Slide right to view actions (Pause, Resume, Edit, and Delete).',
+                'Demo servers do not have actions.']">
+  </hints-selector>
 
 
 </ion-content>

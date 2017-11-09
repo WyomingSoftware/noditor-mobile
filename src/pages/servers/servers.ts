@@ -5,11 +5,13 @@ import { ServersService } from '../../providers/serversService';
 import { StatsDetailsPage } from '../stats/stats-details';
 import { ServerSetupModal } from './server-setup';
 import { MessageComponent } from '../../components/message';
+import { HintsComponent } from '../../components/hints';
 
 
 @Component({
   selector: 'page-servers',
-  templateUrl: 'servers.html'
+  templateUrl: 'servers.html',
+  providers:[HintsComponent]
 })
 export class ServersPage {
 
