@@ -41,8 +41,6 @@ export class ServersPage {
       this.showDemos = (window.localStorage.getItem("noditor.demoServers") === 'true');
       this.showHints = (window.localStorage.getItem("noditor.showHints") === 'true');
       this.timeoutValue = parseInt(window.localStorage.getItem("noditor.listRefresh")) || 7;
-
-      //console.log('>>>>>>> ServersPage');
     }
     catch(error){
       this.msg.showError('ServersPage.constructor', 'Failed to construct view.', error);
@@ -51,8 +49,8 @@ export class ServersPage {
 
 
   ionViewDidLoad(){
+    console.log('............ ServersPage > ionViewDidLoad - SET EVENTS');
     try{
-      //console.log('ServersPage.ionViewDidLoad -----------------');
       this.loadServersFromStorage();
 
       this.events.subscribe('demoServers:changed', (flag) => {
@@ -64,6 +62,7 @@ export class ServersPage {
       });
       this.events.subscribe('server:changed', this.serverChangedHandler);
       this.events.subscribe('listRefresh:changed', (val) => {
+        console.log('ServersPage.listRefresh:changed', val);
         this.timeoutValue = parseInt(val);
       });
     }
@@ -74,6 +73,7 @@ export class ServersPage {
 
 
   ionViewDidEnter(){
+    console.log('............ ServersPage > ionViewDidEnter - START TIMER >', this.timeoutValue);
     try{
       var self = this;
       //console.log('ServersPage.ionViewDidEnter -----------------');
@@ -89,6 +89,7 @@ export class ServersPage {
 
 
   ionViewWillLeave(){
+    console.log('............ ServersPage >ionViewWillLeave - ', 'CLEAR TIMER');
     try{
       clearInterval(this.timer);
     }
@@ -167,7 +168,7 @@ export class ServersPage {
     this.httpService.get(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top', 5)
     .then((data: any) => {
       try{
-        // console.log('ServersPage.load', data)
+        console.log('ServersPage.load', 'Timeout > ', this.timeoutValue, data)
         if(loader) loader.dismiss();
         server.data = data;
         if(server.data.stats){ // stats may not have loaded at the server right at its startup

@@ -2,7 +2,6 @@ import { Component, ViewChild } from '@angular/core';
 import { NavController, NavParams, ModalController, Events, LoadingController } from 'ionic-angular';
 import { HttpService } from '../../providers/httpService';
 import { Chart } from 'chart.js';
-import { ServerSetupModal } from '../servers/server-setup';
 import { HintsComponent } from '../../components/hints';
 import { MessageComponent } from '../../components/message';
 
@@ -47,6 +46,7 @@ export class StatsDetailsPage {
 
   chartType:string; // heap, os, cpu
   timer:any;
+  timeoutValue:number = 7;
   errorMsg:string;
   httpErrorFlag:boolean = false;
   loaded:boolean = false;
@@ -65,10 +65,12 @@ export class StatsDetailsPage {
     this.serverName = this.server.name; // Need to draw title right away
     this.chartType = window.localStorage.getItem("noditor.lastChartType") || 'heap';
     this.showHints = (window.localStorage.getItem("noditor.showHints") === 'true');
+    this.timeoutValue = parseInt(window.localStorage.getItem("noditor.statsRefresh")) || 7;
   }
 
 
   ionViewDidEnter() {
+    console.log('============ ServerSetupModal > ionViewDidEnter - START TIMER >', this.timeoutValue);
     this.buildHeapChart(); // Init heapChart
     this.buildExternalChart(); // Init heapChart
     this.buildOsChart(); // Init osChart
@@ -80,34 +82,38 @@ export class StatsDetailsPage {
     loader.present();
     this.load(loader);
     var self = this;
-    this.timer = setInterval(function(){ self.load(null); }, 7000);
-  }
-
-
-  ionViewDidLoad(){
-    try{
-      this.events.subscribe('showHints:changed', this.setHintsFlagEventHandler);
-    }
-    catch(error){
-      this.msg.showError('StatsDetailsPage.ionViewDidLoad', 'Failed to set events.', error);
-    }
+    this.timer = setInterval(function(){ self.load(null); }, this.timeoutValue*1000);
   }
 
 
   ionViewWillLeave(){
+    console.log('============ ServerSetupModal >ionViewWillLeave - ', 'CLEAR TIMER');
     try{
       clearInterval(this.timer);
     }
     catch(error){
       this.msg.showError('ServerSetupModal.ionViewWillLeave', 'Failed to clear interval.', error);
     }
-
   }
 
+  // Fires once
+  ionViewDidLoad(){
+    console.log('============ ServerSetupModal > ionViewDidLoad - SET EVENTS');
+    try{
+      this.events.subscribe('showHints:changed', this.setHintsFlagEventHandler);
+      this.events.subscribe('statsRefresh:changed', this.statsRefreshFlagEventHandler);
+    }
+    catch(error){
+      this.msg.showError('StatsDetailsPage.ionViewDidLoad', 'Failed to set events.', error);
+    }
+  }
 
+  //Fires once
   ionViewWillUnload(){
+    console.log('============ ServerSetupModal > ionViewWillUnload - CLEAR EVENTS');
     try{
       this.events.unsubscribe('showHints:changed', this.setHintsFlagEventHandler);
+      this.events.unsubscribe('statsRefresh:changed', this.statsRefreshFlagEventHandler);
     }
     catch(error){
       this.msg.showError('ServerSetupModal.ionViewWillUnload', 'Failed to clear event.', error);
@@ -119,8 +125,14 @@ export class StatsDetailsPage {
     * data:boolean => flag
     */
   setHintsFlagEventHandler= (flag:any) => {
-    console.log('ServerSetupModal.setHintsFlagEventHandler', flag)
+    console.log('ServerSetupModal.setHintsFlagEventHandler', flag);
     this.showHints = flag;
+  }
+
+
+  statsRefreshFlagEventHandler= (val:any) => {
+    console.log('ServerSetupModal.statsRefreshFlagEventHandler', val);
+    this.timeoutValue = val;
   }
 
 
@@ -330,7 +342,7 @@ export class StatsDetailsPage {
     this.httpService.get(this.server.url+'/noditor/'+this.server.path+'/'+this.server.passcode+'/stats', 5)
     .then((data: any) => {
       try{
-        console.log('StatsDetailsPage.load DATA', data)
+        console.log('StatsDetailsPage.load DATA', 'timeout >', this.timeoutValue, data)
         this.server.data = data;
 
         if(this.server.data.stats){ // stats may not have loaded at the server right at its startup
