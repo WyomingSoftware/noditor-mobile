@@ -4,9 +4,11 @@ import { ViewController, NavParams, ActionSheetController, Events,
 import { MessageComponent } from '../../components/message';
 import { HttpService } from '../../providers/httpService';
 import { ServersService } from '../../providers/serversService';
+import { HintsComponent } from '../../components/hints';
 
 
 @Component({
+  providers:[HintsComponent],
   template: `
     <ion-header>
       <ion-toolbar color="light">
@@ -32,7 +34,7 @@ import { ServersService } from '../../providers/serversService';
     </ion-header>
 
 
-    <ion-content>
+    <ion-content padding>
       <ion-list>
 
         <ion-item>
@@ -68,26 +70,22 @@ import { ServersService } from '../../providers/serversService';
       </div>
 
 
-      <div class="_gray" style="padding:0px 20px 20px 20px" *ngIf="showHints === true">
-        <p>
-          <b>Name:</b> A descriptive name for the server. For display purposes only.
-        </p>
-        <p>
-          <b>URL:</b> The full URL to the server including the communication protocol (http or https).
-          Include the port if not 80 or 443. Do not include any part of the URI or a query string.
-          <br/><br/><span style="margin-left:20px">Example: https://www.noditor.com:8443</span>
-        </p>
-        <p>
-          <b>Passcode:</b> If you started the Noditor Node Module with a passcode you
-          will need to place it here.
-        </p>
-        <p>
-          <b>Path:</b> This is a placeholder for your load balancer to use and direct the URL to the
-          proper server. It is ignored by the Noditor Node Module.
-          If you are not directing the URL with a load balancer leave this empty.
-        </p>
-      </div>
+    <!-- HINTS -->
+    <br/><br/>
+      <hints-selector *ngIf="showHints === true"
+          [hints]="['<b>Name:</b> A descriptive name for the server. For display purposes only.',
 
+          '<b>URL:</b> The full URL to the server including the communication protocol (http or https).
+          Include the port if not 80 or 443. Do not include any part of the URI or a query string.
+          <br/><br/>&nbsp;&nbsp;&nbsp;Example: https://www.noditor.com:8443',
+
+          '<b>Passcode:</b> If you started the Noditor Node Module with a passcode you
+          will need to place it here.',
+
+          '<b>Path:</b> This is a placeholder for your load balancer to use and direct the URL to the
+          proper server. It is ignored by the Noditor Node Module.
+          If you are not directing the URL with a load balancer leave this empty.']">
+      </hints-selector>
 
     </ion-content>
   `
@@ -139,8 +137,11 @@ export class ServerSetupModal {
       this.theServer = {key:Date.now().toString(), name:null, url:null, path:null, passcode:null};
       this.theServerCopy= Object.assign({}, this.theServer);
     }
+    // No need to set event for changes @Setting when showHints changes
+    // because this is a modal view.
     this.showHints = (window.localStorage.getItem("noditor.showHints") === 'true');
   }
+
 
 
   validate(){

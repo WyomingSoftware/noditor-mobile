@@ -17,3 +17,10 @@
 ._font-medium{font-size:medium;}
 ._font-large{font-size:large;}
 ._font-xlarge{font-size:x-large;}
+
+._well{
+  color:gray;
+  padding:0px 15px 3px 15px;
+  border:solid 1px gray;
+  border-radius: 15px;
+}
