@@ -25,18 +25,18 @@ export class ServersService {
     demos.push({
         "key":"noditor-server-1",
         demo:true,
-        "name":"Demo Server #1",
+        "name":"Demo @Noditor",
         "path":null,
-        "passcode":null,
+        "passcode":"wyosoft",
         "url":"http://www.noditor.com"});
 
     demos.push({
         "key":"noditor-server-2",
         demo:true,
-        "name":"Demo Server #2",
+        "name":"Demo @Heroku",
         "path":null,
-        "passcode":null,
-        "url":"https://www.noditor.com"});
+        "passcode":"wyosoft",
+        "url":"https://noditor.herokuapp.com"});
 
     return demos;
   }

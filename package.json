@@ -1,7 +1,7 @@
 {
     "name": "Noditor",
-    "version": "0.0.1",
-    "author": "Wyoming Sfftware",
+    "version": "0.0.2",
+    "author": "Wyoming Software",
     "homepage": "https://github.com/WyomingSoftware",
     "private": true,
     "scripts": {

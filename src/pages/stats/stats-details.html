@@ -29,10 +29,15 @@
 <!-- ERROR MSG -->
   <div class="_gray" *ngIf="errorMsg" style="margin:20px 20px 20px 20px;">
       <div class="_red">{{errorMsg}}</div>
-      <div *ngIf="httpErrorFlag">
-        <p>Check the URL, both domain and port. Check that the server called
-        has the proper endpoint declared for the Noditor module.</p>
-        <p>Example (Restify):
+      <div [hidden]="!errorHints">
+        <ul>
+          <li>Check the URL, both domain and port.</li>
+          <li>Is the server running?</li>
+          <li>Has Noditor been paused?</li>
+          <li>Check that the server called
+          has the proper endpoint declared for the Noditor Module.</li>
+        </ul>
+        <p><b>Example endpoint:</b>
           <br/>
           <span style="font-family:courier;">server.get('/noditor/:path/:passcode/:command', noditor.commands);</span>
         </p>
@@ -70,7 +75,7 @@
 
 
 <!-- HEAP -->
-  <ion-list [hidden]="!loaded || chartType != 'heap'" class="_well"
+  <ion-list [hidden]="!loaded || chartType != 'heap'" *ngIf="server.data && server.data.peaks" class="_well"
     style="border:solid black 1px;width:100%;margin-bottom:45px;padding-top:8px;padding-bottom:5px;">
     <div class="_bold _primary _center">
       Peaks

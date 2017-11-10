@@ -5,9 +5,10 @@ import {Component, Input} from '@angular/core';
   selector: 'hints-selector',
   template: `
   <div class="_hints">
-    <div class="_bold _primary _center" style="margin-top:8px;">
+    <div class="_bold _primary _center" style="margin-top:5px;">
       Hints
     </div>
+    <hr/>
     <p *ngFor="let hint of hints" [innerHTML]="hint"></p>
   </div>`
 })

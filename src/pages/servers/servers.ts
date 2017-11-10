@@ -124,6 +124,7 @@ export class ServersPage {
         if(this.showDemos){
           let demos = this.serversService.getDemos();
           this.servers = demos.concat(data);
+          console.log(this.servers)
         }
         else {
           this.servers = data;
@@ -183,10 +184,19 @@ export class ServersPage {
         server.data = {status:-1, statusText:error};
       }
     }).catch(error => {
+      console.log('ServersPage.load.outer.catch', error)
       if(loader) loader.dismiss();
       server.data = {status:error.status, statusText:error.statusText};
-      if(error.status === 0) server.data.statusText = "Unable to connect.";
-      if(error.status === 409) server.data.statusText = "Paused";
+      if(error.name && error.name ==='TimeoutError'){
+        server.data = {status:0, statusText:'Timeout trying to connect'};
+      }
+      else if(error.status === 0) server.data.statusText = "Unable to connect.";
+      else if(error.status === 403 || error.status === 409) {
+        server.data.statusText = JSON.parse(error._body).why;
+      }
+      else if(error.status === 500) {
+        server.data.statusText = JSON.parse(error._body).why;
+      }
     });
   }
 
@@ -274,13 +284,21 @@ export class ServersPage {
 
 
   pauseOrResume(event, server, command){
+    let loader = this.loadingCtrl.create({
+      content: 'Please wait...'
+    });
+    loader.present();
+
     this.httpService.get(server.url+'/noditor/'+server.path+'/'+server.passcode+'/'+command, 5)
     .then((data: any) => {
       this.setRedrawServer(server);
+      loader.dismiss();
     }).catch(error => {
       server.data = {status:error.status, statusText:error.statusText};
       if(error.status === 0) server.data.statusText = "Unable to connect.";
       if(error.status === 409) server.data.statusText = "Paused";
+      loader.dismiss();
+      this.msg.showError('ServersPage.pauseOrResume', 'Failed to execute the command.', error);
     });
   }
 

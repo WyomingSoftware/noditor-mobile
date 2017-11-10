@@ -48,7 +48,7 @@ export class StatsDetailsPage {
   timer:any;
   timeoutValue:number = 7;
   errorMsg:string;
-  httpErrorFlag:boolean = false;
+  errorHints:boolean = false;
   loaded:boolean = false;
   showHints:boolean;
 
@@ -338,7 +338,7 @@ export class StatsDetailsPage {
 
   load(loader){
     this.errorMsg = null;
-    this.httpErrorFlag = false;
+    this.errorHints = false;
     this.httpService.get(this.server.url+'/noditor/'+this.server.path+'/'+this.server.passcode+'/stats', 5)
     .then((data: any) => {
       try{
@@ -371,8 +371,6 @@ export class StatsDetailsPage {
           else if(this.chartType === 'os'){this.graphOS();}
           else if(this.chartType === 'cpu'){this.graphCPU();}
 
-
-
           this.loaded = true;
           if(loader) loader.dismiss();
         }
@@ -382,15 +380,34 @@ export class StatsDetailsPage {
         if(loader) loader.dismiss();
         this.loaded = false;
         this.errorMsg = error.toString();
+        this.errorHints = true;
       }
     }).catch(error => {
       console.log('HTTP.outer.error ---', error);
       if(loader) loader.dismiss();
       this.loaded = false;
-      this.server.data = {status:error.status, statusText:'Unknown error'};
-      if(error.status === 0) this.server.data.statusText = "Unable to connect to the target server.";
-      this.errorMsg = error.toString();
-      this.httpErrorFlag = true;
+      this.server.data = {status:error.status, statusText:error.statusText};
+      if(error.name && error.name === 'TimeoutError'){
+        this.errorMsg = error.name+' - Timeout error trying to connect';
+        this.errorHints = true;
+      }
+      else if(error.status === 0) {
+        this.errorMsg = this.server.data.status+' - Unable to connect';
+        this.errorHints = true;
+      }
+      else if(error.status === 403) {
+        this.errorMsg = this.server.data.status+' - '+JSON.parse(error._body).why; // No error Hints
+      }
+      else if(error.status === 409) {
+        this.errorMsg = this.server.data.status+' - '+JSON.parse(error._body).why; // No error Hints
+      }
+      else if(error.status === 500) {
+        this.errorMsg = this.server.data.status+' - '+JSON.parse(error._body).why; // No error Hints
+      }
+      else{
+        this.errorMsg = this.server.data.status+' - '+this.server.data.statusText;
+        this.errorHints = true;
+      }
     });
   }
 
@@ -468,7 +485,11 @@ export class StatsDetailsPage {
 
   segmentChanged(event){
     console.log(event._value, this.chartType);
-    this.load(null);
+    let loader = this.loadingCtrl.create({
+      content: 'Please wait...'
+    });
+    loader.present();
+    this.load(loader);
 
     window.localStorage.setItem("noditor.lastChartType", this.chartType);
   }
