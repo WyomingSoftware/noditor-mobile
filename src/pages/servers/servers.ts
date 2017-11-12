@@ -178,6 +178,7 @@ export class ServersPage {
           server.data.stats.memoryUsage.rss = this.convertToMb(server.data.stats.memoryUsage.rss);
           server.data.peaks.peakHeapTotal = this.convertToMb(server.data.peaks.peakHeapTotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           server.data.peaks.peakHeapUsed = this.convertToMb(server.data.peaks.peakHeapUsed).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          server.data.stats.uptime = ( ((server.data.stats.uptime/60)/60)/24 ).toFixed(2); // days
         }
       }
       catch(error){
