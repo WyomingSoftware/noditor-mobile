@@ -65,6 +65,7 @@ export class ServersService {
       });
   }
 
+
   set = function(server){
     var self = this;
     let store = {key:server.key, name:server.name, url:server.url,
