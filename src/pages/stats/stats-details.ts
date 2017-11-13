@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { NavController, NavParams, ModalController, Events, LoadingController } from 'ionic-angular';
 import { HttpService } from '../../providers/httpService';
 import { Chart } from 'chart.js';
@@ -14,10 +14,12 @@ import { MessageComponent } from '../../components/message';
 })
 export class StatsDetailsPage {
 
-  @ViewChild('heapChart') __heapChart;
-  @ViewChild('externalChart') __externalChart;
-  @ViewChild('osChart') __osChart;
-  @ViewChild('cpuChart') __cpuChart;
+  // Do not use a double underscore in names of viewchild elements
+  // This causes an undefined error when using the --prod flag for ionic build
+  @ViewChild('heapChart') _heapChart: ElementRef;
+  @ViewChild('externalChart') _externalChart: ElementRef;
+  @ViewChild('osChart') _osChart: ElementRef;
+  @ViewChild('cpuChart') _cpuChart: ElementRef;
 
   // Server properties from stats
   serverProperties:any = {nodeVersion:null, hostName:null, upTime:null};
@@ -69,8 +71,8 @@ export class StatsDetailsPage {
   }
 
 
-  ionViewDidEnter() {
-    console.log('============ ServerSetupModal > ionViewDidEnter - START TIMER >', this.timeoutValue);
+  ngAfterViewInit(){ //ionViewDidEnter() {
+    console.log('============ StatsDetailsPage > ionViewDidEnter - START TIMER >', this.timeoutValue);
     this.buildHeapChart(); // Init heapChart
     this.buildExternalChart(); // Init heapChart
     this.buildOsChart(); // Init osChart
@@ -83,6 +85,7 @@ export class StatsDetailsPage {
     this.load(loader);
     var self = this;
     this.timer = setInterval(function(){ self.load(null); }, this.timeoutValue*1000);
+
   }
 
 
@@ -98,7 +101,7 @@ export class StatsDetailsPage {
 
   // Fires once
   ionViewDidLoad(){
-    console.log('============ ServerSetupModal > ionViewDidLoad - SET EVENTS');
+    console.log('============ StatsDetailsPage > ionViewDidLoad - SET EVENTS');
     try{
       this.events.subscribe('showHints:changed', this.setHintsFlagEventHandler);
       this.events.subscribe('statsRefresh:changed', this.statsRefreshFlagEventHandler);
@@ -110,13 +113,13 @@ export class StatsDetailsPage {
 
   //Fires once
   ionViewWillUnload(){
-    console.log('============ ServerSetupModal > ionViewWillUnload - CLEAR EVENTS');
+    console.log('============ StatsDetailsPage > ionViewWillUnload - CLEAR EVENTS');
     try{
       this.events.unsubscribe('showHints:changed', this.setHintsFlagEventHandler);
       this.events.unsubscribe('statsRefresh:changed', this.statsRefreshFlagEventHandler);
     }
     catch(error){
-      this.msg.showError('ServerSetupModal.ionViewWillUnload', 'Failed to clear event.', error);
+      this.msg.showError('StatsDetailsPage.ionViewWillUnload', 'Failed to clear event.', error);
     }
   }
 
@@ -125,19 +128,19 @@ export class StatsDetailsPage {
     * data:boolean => flag
     */
   setHintsFlagEventHandler= (flag:any) => {
-    console.log('ServerSetupModal.setHintsFlagEventHandler', flag);
+    console.log('StatsDetailsPage.setHintsFlagEventHandler', flag);
     this.showHints = flag;
   }
 
 
   statsRefreshFlagEventHandler= (val:any) => {
-    console.log('ServerSetupModal.statsRefreshFlagEventHandler', val);
+    console.log('StatsDetailsPage.statsRefreshFlagEventHandler', val);
     this.timeoutValue = val;
   }
 
 
   buildHeapChart(){
-    this.heapChart = new Chart(this.__heapChart.nativeElement, {
+    this.heapChart = new Chart(this._heapChart.nativeElement, {
       type: 'bar',
       maintainAspectRatio: false,
       data: {
@@ -173,11 +176,19 @@ export class StatsDetailsPage {
             gridLines: {
               display: true,
               color: "rgba(255,99,132,0.2)"
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'MB',
             }
           }],
           xAxes: [{
             gridLines: {
               display: true
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Time (min/secs)',
             }
           }]
         }
@@ -187,7 +198,7 @@ export class StatsDetailsPage {
 
 
   buildExternalChart(){
-    this.externalChart = new Chart(this.__externalChart.nativeElement, {
+    this.externalChart = new Chart(this._externalChart.nativeElement, {
       type: 'bar',
       maintainAspectRatio: false,
       data: {
@@ -208,11 +219,19 @@ export class StatsDetailsPage {
             gridLines: {
               display: true,
               color: "rgba(255,99,132,0.2)"
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'MB',
             }
           }],
           xAxes: [{
             gridLines: {
               display: true
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Time (min/secs)',
             }
           }]
         }
@@ -222,7 +241,7 @@ export class StatsDetailsPage {
 
 
   buildOsChart(){
-    this.osChart = new Chart(this.__osChart.nativeElement, {
+    this.osChart = new Chart(this._osChart.nativeElement, {
       type: 'line',
       maintainAspectRatio: false,
       data: {
@@ -245,11 +264,19 @@ export class StatsDetailsPage {
             gridLines: {
               display: true,
               color: "rgba(255,99,132,0.2)"
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'GB',
             }
           }],
           xAxes: [{
             gridLines: {
               display: true
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Time (min/secs)',
             }
           }]
         }
@@ -259,7 +286,7 @@ export class StatsDetailsPage {
 
 
   buildCpuChart(){
-    this.cpuChart = new Chart(this.__cpuChart.nativeElement, {
+    this.cpuChart = new Chart(this._cpuChart.nativeElement, {
       type: 'line',
       maintainAspectRatio: false,
       data: {
@@ -289,11 +316,19 @@ export class StatsDetailsPage {
             gridLines: {
               display: true,
               color: "rgba(255,99,132,0.2)"
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Seconds',
             }
           }],
           xAxes: [{
             gridLines: {
               display: true
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Time (min/secs)',
             }
           }]
         }
