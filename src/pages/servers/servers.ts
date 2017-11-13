@@ -264,8 +264,13 @@ export class ServersPage {
               try{
                 for(var i=0; i<this.servers.length; i++){
                   if(this.servers[i].key == server.key){
-                    this.servers.splice(i, 1);
-                    this.serversService.remove(server.key);
+                    try{
+                      this.serversService.remove(server.key);
+                      this.servers.splice(i, 1);
+                    }
+                    catch(err){
+                      this.msg.showError('ServersPage.deleteServer', 'Failure to remove.', err);
+                    }
                   }
                 }
               }
