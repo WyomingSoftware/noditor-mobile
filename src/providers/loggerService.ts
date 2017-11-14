@@ -5,12 +5,15 @@ import { Events } from 'ionic-angular';
 @Injectable()
 
 
-/** A specialized logger class that manages the persistant storage of values for
-  * messages such as errors. Only the last 12 messages are saved.
-  *
-  * All messages are stored in the object "logger" using window.localStorage
-  * as an array along with a "where" key.
-  */
+/**
+ * A specialized logger class that manages the persistant storage of values for
+ * messages such as errors. Only the last 30 messages are saved.
+ *
+ * All messages are stored in the object "logger" using window.localStorage
+ * as an array along with a "where" key. The logger messages are considered expendable
+ * so if the OS purges them it is acceptable.
+ * @param  {Events} events
+ */
 export class LoggerService {
 
 
@@ -27,15 +30,15 @@ export class LoggerService {
     }
 
 
-    /** Adds a logger message to the logger list. Only the last 30 are stored.
-      *
-      * type => string: error, notifications, alert, geo
-      * location => string: location of error or message
-      * message => string: message in string format
-      * data => object: any ole object, mostly an error but could be actual data
-      *                  for a notification or alert
-      */
-    set = function(type, location, message, data){
+    /**
+     * Adds a new logger message to persistant storage. Sends out an event upon
+     * completion.
+     * @param  {string} type     the type of logger message, error or alarm
+     * @param  {string} location location of error or message in source code
+     * @param  {string} message  message in string format
+     * @param  {any}    data     any object, mostly for errors but could be other data
+     */
+    set = function(type:string, location:string, message:string, data:any):void{
 
       let dataStr = null;
       if(data && type == 'notifications'){
@@ -49,7 +52,6 @@ export class LoggerService {
       }
       let icon = type;
       if (type == 'error') icon = 'alarm';
-      else if (type == 'geo') icon = 'pin';
 
       let obj = {type:type, icon:icon, location:location, dttm:new Date(), timestamp: Date.now(), message:message, data:dataStr};
 
@@ -65,19 +67,22 @@ export class LoggerService {
     }
 
 
-    /** Deletes a row from the logger list with confirmation.
-      *
-      * lineNumber:number => the line number to remove from the logger array
-      */
-    delete(lineNumber){
+    /**
+     * Deletes a row from the stored logger list.
+     * @param  {number} lineNumber the array index to remove
+     * @return {array}             the current list of logger messages after removing the deletion
+     */
+    delete(lineNumber:number){
       this.messages.splice(lineNumber,1);
       window.localStorage.setItem("logger", JSON.stringify(this.messages));
       return this.messages;
     }
 
 
-    /** Gets the list of logger messages.
-      */
+    /**
+     * Gets the list of logger messages.
+     * @return {array}  the current list of logger messages
+     */
     get = function(){
         return this.messages;
     }

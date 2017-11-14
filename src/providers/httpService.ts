@@ -6,6 +6,10 @@ import 'rxjs/add/operator/timeout';
 @Injectable()
 
 
+/**
+ * Provider for Http services
+ * @param  {Http}   http angular http access prvider
+ */
 export class HttpService {
 
 
@@ -15,8 +19,13 @@ export class HttpService {
     }
 
 
+    /**
+     * Generically performs a GET
+     * @param  {string} url     complete target url
+     * @param  {number} timeout request timeout in seconds
+     * @return {Promise}        returns a promise
+     */
     get = function(url:string, timeout:number) {
-        //console.log('%c\n======================= HttpService GET =======================', this.styles)
         var self = this;
         var header = new Headers();
         header.set('Content-Type', 'application/json');
@@ -26,31 +35,23 @@ export class HttpService {
             .timeout((timeout*1000))
             .subscribe(res => {
                   try{
-                      //console.log(res)
-                      //if(res.status == 204){ // No data in the query
-                      //    resolve({status:204});
-                      //}
-                      //else{
-                          var data = res.json();
-                          //console.log(data)
-                          data.status = res.status;
-                          resolve(data);
-                      //}
+                    var data = res.json(); // Add stats
+                    // Add execution status and attrs
+                    data.status = res.status;
+                    data.statusText = res.statusText;
+                    data.type = res.type;
+                    data.url = res.url;
+                    resolve(data);
                   }
                   catch(err){
-                      console.log('HttpService.get.subscribe.catch  =======================')
-                      console.log(err)
                       reject( err );
                   }
               }, error => {
-                  //console.log('GET.error  =======================')
-                  //console.log(error)
                   reject( error );
               }, () => {
-                  //console.log('finally')
               });
-        });
+        }); // end return
     }
 
 
-}
+} // end class

@@ -5,6 +5,21 @@ import { Storage } from '@ionic/storage';
 @Injectable()
 
 
+/**
+ * Provider to maintain a list of user defined servers in the Ionic storage engine.
+ *
+ * Eeach server is described by a simple object.
+ * {
+     key:string,
+     demo:boolean,
+     name:string,
+     path:null,
+     passcode:string,
+     url:string
+ * }
+ *
+ * @param  {Storage} storage Ionic storage plugin
+ */
 export class ServersService {
 
 
@@ -18,13 +33,17 @@ export class ServersService {
    * Creates the list of demo servers
    * @return array list of demo servers
    */
+
+  /**
+   * Gets a list of demos servers. All servers are described by an object but only
+   * demo servers have the demo key.
+   * @return {array} an array of the demo servers
+   */
   getDemos = function(){
     let demos = [];
-
-    // Only demo servers have the demo = true key
     demos.push({
         "key":"noditor-server-1",
-        demo:true,
+        "demo":true, // Only demo servers have the demo:boolean = true key
         "name":"Demo @Noditor",
         "path":null,
         "passcode":"wyosoft",
@@ -32,7 +51,7 @@ export class ServersService {
 
     demos.push({
         "key":"noditor-server-2",
-        demo:true,
+        "demo":true, // Only demo servers have the demo:boolean = true ke
         "name":"Demo @Heroku",
         "path":null,
         "passcode":"wyosoft",
@@ -42,6 +61,10 @@ export class ServersService {
   }
 
 
+  /**
+   * Gets a list of user defined server from the Ionic storage engine.
+   * @return {Promise} returns a promise with an array of servers
+   */
   get = function() {
       var self = this;
       return new Promise(function(resolve, reject) {
@@ -66,22 +89,25 @@ export class ServersService {
   }
 
 
-  set = function(server){
+  /**
+   * Adds or updates a server to the local Ionic storage engine.
+   * @param  {object}    server an object that describes the server including its unique key
+   */
+  set = function(server:any):void{
     var self = this;
     let store = {key:server.key, name:server.name, url:server.url,
       path:server.path, passcode:server.passcode};
-    self.storage.set(server.key, store).then((data) => {
-      console.log('ServersService.set', data)
-    });
+    self.storage.set(server.key, store).then((data) => {});
   }
 
 
-  remove = function(key){
-    console.log('ServersService.remove', key);
-    var self = this;
-    self.storage.remove(key).then((data) => {
-      console.log('ServersService.removed')
-    });
+  /**
+   * Removes a server from the local Ionic storage engine.
+   * @param  {string} key the unique key of the server object to remove
+   */
+  remove = function(key:string):void{
+      var self = this;
+      self.storage.remove(key).then((data) => {});
   }
 
 

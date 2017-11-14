@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar color="primary">
-    <ion-title>Node.js Servers</ion-title>
+    <ion-title>Servers</ion-title>
     <ion-buttons end>
       <button ion-button icon-only (click)="addServer()">
         <ion-icon name="add-circle"></ion-icon>
@@ -56,10 +56,10 @@
         <div *ngIf="server.data && server.data.stats && server.data.peaks">
           <!-- has memoryUsage -->
           <div class="_font-small" *ngIf="server.data.stats.memoryUsage">
-            {{server.data.stats.memoryUsage.heapUsed}} Mb / {{server.data.stats.memoryUsage.heapTotal}} Mb
+            {{server.data.stats.memoryUsage.heapUsed}} MB / {{server.data.stats.memoryUsage.heapTotal}} MB
           </div>
           <div class="_gray _font-xsmall" *ngIf="server.data.peaks">
-            Peak: {{server.data.peaks.peakHeapUsed}} Mb / {{server.data.peaks.peakHeapTotal}} Mb
+            Peak: {{server.data.peaks.peakHeapUsed}} MB / {{server.data.peaks.peakHeapTotal}} MB
           </div>
           <div class="_gray _font-xsmall">
             {{server.data.stats.nodeVersion}} / Uptime (days) {{server.data.stats.uptime}}
@@ -76,6 +76,12 @@
 
 
       <!-- sliding options -->
+      <ion-item-options side="left" *ngIf="server.demo">
+        <button ion-button color="light" style="width:90px;" >
+          No actions<br/>available
+        </button>
+      </ion-item-options>
+
       <ion-item-options side="left" *ngIf="!server.demo">
         <button ion-button *ngIf="server.data && server.data.status == 409"
             (click)="pauseOrResume($event, server, 'start')" color="secondary" class="_slider-width">

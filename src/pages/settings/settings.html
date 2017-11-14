@@ -18,7 +18,7 @@
 
     <!-- List Refresh Rate -->
     <ion-item class="_list-item">
-        <ion-label>Server List Refresh</ion-label>
+        <ion-label>Servers View Refresh</ion-label>
         <ion-select [(ngModel)]="listRefresh" interface="action-sheet" (ionChange)=setListRefresh($event)>
           <ion-option value="7">7 seconds</ion-option>
           <ion-option value="10">10 seconds</ion-option>
@@ -32,7 +32,7 @@
 
     <!-- Stats Refresh Rate -->
     <ion-item class="_list-item">
-      <ion-label>Stats Refresh Rate</ion-label>
+      <ion-label>Stats View Refresh</ion-label>
       <ion-select [(ngModel)]="statsRefresh" interface="action-sheet" (ionChange)=setStatsRefresh($event)>
         <ion-option value="7">7 seconds</ion-option>
         <ion-option value="10">10 seconds</ion-option>
@@ -49,12 +49,15 @@
 
   </ion-list>
 
+  <h5 class="_gray _well _center" style="padding:10px 10px 10px 10px;margin-bottom:20px;">Version: {{version}}</h5>
+
 
 <!-- HINTS -->
   <hints-selector *ngIf="showHints === true"
-      [hints]="['<b>Show Demo Servers:</b> The main servers list view will show two demo servers above the servers you add.',
-                '<b>Server List Refresh:</b> The stats on the main servers list view will refresh at the rate you select.',
-                '<b>Stats List Refresh:</b> The stats and graphs on a server view will refresh at the rate you select.']">
+      [hints]="['<b>Show Demo Servers:</b> The Servers List view will show two demo servers above the servers you add.',
+                '<b>Servers View Refresh:</b> The Servers List view will refresh at the rate you select.',
+                '<b>Stats View Refresh:</b> The Server Stats view will refresh at the rate you select.',
+                '<b>Show Hints:</b> Most views have a Hints box that can be hidden or shown.']">
   </hints-selector>
 
 

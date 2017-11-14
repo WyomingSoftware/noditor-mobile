@@ -1,6 +1,7 @@
-import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
-import { NavController, NavParams, ModalController, Events, LoadingController } from 'ionic-angular';
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { NavController, NavParams, Events, LoadingController } from 'ionic-angular';
 import { HttpService } from '../../providers/httpService';
+import { UTILS } from '../../providers/utils';
 import { Chart } from 'chart.js';
 import { HintsComponent } from '../../components/hints';
 import { MessageComponent } from '../../components/message';
@@ -12,7 +13,14 @@ import { MessageComponent } from '../../components/message';
   templateUrl: 'stats-details.html',
   providers:[HintsComponent]
 })
+
+
+/**
+ * Display stats for a named server.
+ * @type {View}
+ */
 export class StatsDetailsPage {
+
 
   // Do not use a double underscore in names of viewchild elements
   // This causes an undefined error when using the --prod flag for ionic build
@@ -55,13 +63,23 @@ export class StatsDetailsPage {
   showHints:boolean;
 
 
+  /**
+   * Class constructor.
+   * @param  {NavController}     navCtrl     Ionic navigation controller
+   * @param  {HttpService}       httpService Common service for http calls
+   * @param  {NavParams}         navParams   Ionic parmeters
+   * @param  {Events}            events      Ionic event
+   * @param  {LoadingController} loadingCtrl Ionic loading controller
+   * @param  {MessageComponent}  msg         Common service for alerts
+   * @param  {UTILS}             utils       Common functions
+   */
   constructor(public navCtrl: NavController,
       public httpService:HttpService,
       navParams:NavParams,
-      public modalCtrl:ModalController,
       public events:Events,
       public loadingCtrl:LoadingController,
-      private msg:MessageComponent) {
+      private msg:MessageComponent,
+      private utils:UTILS) {
 
     this.server = navParams.get('server');
     this.serverName = this.server.name; // Need to draw title right away
@@ -71,26 +89,35 @@ export class StatsDetailsPage {
   }
 
 
-  ngAfterViewInit(){ //ionViewDidEnter() {
-    console.log('============ StatsDetailsPage > ionViewDidEnter - START TIMER >', this.timeoutValue);
-    this.buildHeapChart(); // Init heapChart
-    this.buildExternalChart(); // Init heapChart
-    this.buildOsChart(); // Init osChart
-    this.buildCpuChart(); // Init cpuChart
+  /**
+   * Fires each time the view come to front. Preps the charts, loads the first chart
+   * and sets the redraw timer.
+   */
+  ionViewDidEnter():void{ // ngAfterViewInit
+    try{
+      this.buildHeapChart(); // Init heapChart
+      this.buildExternalChart(); // Init heapChart
+      this.buildOsChart(); // Init osChart
+      this.buildCpuChart(); // Init cpuChart
 
-    let loader = this.loadingCtrl.create({
-      content: 'Please wait...'
-    });
-    loader.present();
-    this.load(loader);
-    var self = this;
-    this.timer = setInterval(function(){ self.load(null); }, this.timeoutValue*1000);
-
+      let loader = this.loadingCtrl.create({
+        content: 'Please wait...'
+      });
+      loader.present();
+      this.load(loader);
+      var self = this;
+      this.timer = setInterval(function(){ self.load(null); }, this.timeoutValue*1000);
+    }
+    catch(error){
+      this.msg.showError('ServerSetupModal.ionViewDidEnter', 'Failed to init charts, load or start timer.', error);
+    }
   }
 
 
-  ionViewWillLeave(){
-    console.log('============ ServerSetupModal >ionViewWillLeave - ', 'CLEAR TIMER');
+  /**
+   * Fires before leaving the view. Ends the redraw timer.
+   */
+  ionViewWillLeave():void{
     try{
       clearInterval(this.timer);
     }
@@ -99,9 +126,10 @@ export class StatsDetailsPage {
     }
   }
 
-  // Fires once
-  ionViewDidLoad(){
-    console.log('============ StatsDetailsPage > ionViewDidLoad - SET EVENTS');
+  /**
+   * Fires once when the view loads. Adds event subscriptions.
+   */
+  ionViewDidLoad():void{
     try{
       this.events.subscribe('showHints:changed', this.setHintsFlagEventHandler);
       this.events.subscribe('statsRefresh:changed', this.statsRefreshFlagEventHandler);
@@ -111,9 +139,10 @@ export class StatsDetailsPage {
     }
   }
 
-  //Fires once
-  ionViewWillUnload(){
-    console.log('============ StatsDetailsPage > ionViewWillUnload - CLEAR EVENTS');
+  /**
+   * Fires once when the view loads. Removes event subscriptions.
+   */
+  ionViewWillUnload():void{
     try{
       this.events.unsubscribe('showHints:changed', this.setHintsFlagEventHandler);
       this.events.unsubscribe('statsRefresh:changed', this.statsRefreshFlagEventHandler);
@@ -124,22 +153,27 @@ export class StatsDetailsPage {
   }
 
   /**
-    *
-    * data:boolean => flag
-    */
-  setHintsFlagEventHandler= (flag:any) => {
-    console.log('StatsDetailsPage.setHintsFlagEventHandler', flag);
+   * Event handler to change the showHints flag.
+   */
+  setHintsFlagEventHandler= (flag:any):void => {
     this.showHints = flag;
   }
 
 
-  statsRefreshFlagEventHandler= (val:any) => {
-    console.log('StatsDetailsPage.statsRefreshFlagEventHandler', val);
-    this.timeoutValue = val;
+  /**
+   * Event handler to change the refresh timerValue. The timer will
+   * reset with the new value as the view comes to the front if the user
+   * stepped out to setting.
+   */
+  statsRefreshFlagEventHandler= (val:any):void => {
+    this.timeoutValue = parseInt(val);
   }
 
 
-  buildHeapChart(){
+  /**
+   * Create an instance of the heap chart.
+   */
+  buildHeapChart():void{
     this.heapChart = new Chart(this._heapChart.nativeElement, {
       type: 'bar',
       maintainAspectRatio: false,
@@ -197,7 +231,10 @@ export class StatsDetailsPage {
   }
 
 
-  buildExternalChart(){
+  /**
+   * Create an instance of the external chart.
+   */
+  buildExternalChart():void{
     this.externalChart = new Chart(this._externalChart.nativeElement, {
       type: 'bar',
       maintainAspectRatio: false,
@@ -240,7 +277,10 @@ export class StatsDetailsPage {
   }
 
 
-  buildOsChart(){
+  /**
+   * Create an instance of the os chart.
+   */
+  buildOsChart():void{
     this.osChart = new Chart(this._osChart.nativeElement, {
       type: 'line',
       maintainAspectRatio: false,
@@ -285,7 +325,10 @@ export class StatsDetailsPage {
   }
 
 
-  buildCpuChart(){
+  /**
+   * Create an instance of the cpu chart.
+   */
+  buildCpuChart():void{
     this.cpuChart = new Chart(this._cpuChart.nativeElement, {
       type: 'line',
       maintainAspectRatio: false,
@@ -337,62 +380,32 @@ export class StatsDetailsPage {
   }
 
 
-  convertToMb = function(data) {
-    try{
-      return (data/1024/1024).toFixed(2);
-    }
-    catch(err){
-      throw err;
-    }
-  };
-
-  convertToGb = function(data) {
-    try{
-      return (data/1024/1024/1024).toFixed(2);
-    }
-    catch(err){
-      throw err;
-    }
-  };
-
-
-  convertTimestamp = function(millis) {
-    try{
-      millis =1000*Math.round(millis/1000); // round to nearest second
-      var d = new Date(millis);
-
-      var minutes = ("0" + d.getUTCMinutes()).slice(-2);
-      var seconds = ("0" + d.getUTCSeconds()).slice(-2);
-      return String(minutes + ':' + seconds);
-    }
-    catch(err){
-      throw err;
-    }
-  }
-
-
-  load(loader){
+  /**
+   * Gets the stats for the server.
+   * @param {LoadingController} loader diplays the loading controller if not null
+   */
+  load(loader):void{
     this.errorMsg = null;
     this.errorHints = false;
     this.httpService.get(this.server.url+'/noditor/'+this.server.path+'/'+this.server.passcode+'/stats', 5)
     .then((data: any) => {
       try{
-        console.log('StatsDetailsPage.load DATA', 'timeout >', this.timeoutValue, data)
+        //console.log('StatsDetailsPage.load DATA', 'timer value >', this.timeoutValue, data)
         this.server.data = data;
 
         if(this.server.data.stats){ // stats may not have loaded at the server right at its startup
-          this.server.data.peaks.peakHeapTotal = this.convertToMb(this.server.data.peaks.peakHeapTotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          this.server.data.peaks.peakHeapUsed = this.convertToMb(this.server.data.peaks.peakHeapUsed).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          this.server.data.peaks.peakHeapTotal = this.utils.convertToMB(this.server.data.peaks.peakHeapTotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          this.server.data.peaks.peakHeapUsed = this.utils.convertToMB(this.server.data.peaks.peakHeapUsed).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           this.server.data.peaks.peakHeapTotalDttm = new Date(this.server.data.peaks.peakHeapTotalDttm);
           this.server.data.peaks.peakHeapUsedDttm = new Date(this.server.data.peaks.peakHeapUsedDttm);
 
           for(let i=0; i<this.server.data.stats.length; i++){
-            this.server.data.stats[i].memoryUsage.heapUsed = this.convertToMb(this.server.data.stats[i].memoryUsage.heapUsed);
-            this.server.data.stats[i].memoryUsage.heapTotal = this.convertToMb(this.server.data.stats[i].memoryUsage.heapTotal);
-            this.server.data.stats[i].memoryUsage.rss = this.convertToMb(this.server.data.stats[i].memoryUsage.rss);
-            this.server.data.stats[i].memoryUsage.external = this.convertToMb(this.server.data.stats[i].memoryUsage.external);
+            this.server.data.stats[i].memoryUsage.heapUsed = this.utils.convertToMB(this.server.data.stats[i].memoryUsage.heapUsed);
+            this.server.data.stats[i].memoryUsage.heapTotal = this.utils.convertToMB(this.server.data.stats[i].memoryUsage.heapTotal);
+            this.server.data.stats[i].memoryUsage.rss = this.utils.convertToMB(this.server.data.stats[i].memoryUsage.rss);
+            this.server.data.stats[i].memoryUsage.external = this.utils.convertToMB(this.server.data.stats[i].memoryUsage.external);
 
-            this.server.data.stats[i].osFreemem = this.convertToGb(this.server.data.stats[i].osFreemem);
+            this.server.data.stats[i].osFreemem = this.utils.convertToGB(this.server.data.stats[i].osFreemem);
             this.server.data.stats[i].process.user = (this.server.data.stats[i].process.user/1000000);
             this.server.data.stats[i].process.system = (this.server.data.stats[i].process.system/1000000);
 
@@ -411,14 +424,12 @@ export class StatsDetailsPage {
         }
       }
       catch(error){
-        console.log('HTTP.inner.error', error);
         if(loader) loader.dismiss();
         this.loaded = false;
         this.errorMsg = error.toString();
         this.errorHints = true;
       }
     }).catch(error => {
-      console.log('HTTP.outer.error ---', error);
       if(loader) loader.dismiss();
       this.loaded = false;
       this.server.data = {status:error.status, statusText:error.statusText};
@@ -447,15 +458,17 @@ export class StatsDetailsPage {
   }
 
 
-  graphHEAP(){
-    console.log('GRAPH HEAP');
+  /**
+   * Populates the instance of the heap chart with data.
+   */
+  graphHEAP():void{
     this.heapLabels = [];
     this.heapUsed = [];
     this.heapTotal = [];
     this.rss = [];
 
     for(let i=0; i<this.server.data.stats.length; i++){
-      this.heapLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
+      this.heapLabels.push( this.utils.convertTimestamp(this.server.data.stats[i].dttm) );
       this.heapUsed.push(Number(this.server.data.stats[i].memoryUsage.heapUsed));
       this.heapTotal.push(Number(this.server.data.stats[i].memoryUsage.heapTotal));
       this.rss.push(Number(this.server.data.stats[i].memoryUsage.rss));
@@ -468,13 +481,16 @@ export class StatsDetailsPage {
     this.heapChart.update();
   }
 
-  graphEXTERNAL(){
-    console.log('GRAPH EXTERNAL');
+
+  /**
+   * Populates the instance of the external chart with data.
+   */
+  graphEXTERNAL():void{
     this.externalLabels = [];
     this.external = [];
 
     for(let i=0; i<this.server.data.stats.length; i++){
-      this.externalLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
+      this.externalLabels.push( this.utils.convertTimestamp(this.server.data.stats[i].dttm) );
       this.external.push(Number(this.server.data.stats[i].memoryUsage.external));
     }
     this.externalChart.data.labels = this.externalLabels;
@@ -484,13 +500,15 @@ export class StatsDetailsPage {
   }
 
 
-  graphOS(){
-    console.log('GRAPH OS');
+  /**
+   * Populates the instance of the os chart with data.
+   */
+  graphOS():void{
     this.osLabels = [];
     this.osFreemem = [];
 
     for(let i=0; i<this.server.data.stats.length; i++){
-      this.osLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
+      this.osLabels.push( this.utils.convertTimestamp(this.server.data.stats[i].dttm) );
       this.osFreemem.push(Number(this.server.data.stats[i].osFreemem));
     }
     this.osChart.data.labels = this.osLabels;
@@ -499,14 +517,17 @@ export class StatsDetailsPage {
     this.osChart.update();
   }
 
-  graphCPU(){
-    console.log('GRAPH CPU');
+
+  /**
+   * Populates the instance of the cpu chart with data.
+   */
+  graphCPU():void{
     this.cpuLabels = [];
     this.cpuProcessUser = [];
     this.cpuProcessSystem = [];
 
     for(let i=0; i<this.server.data.stats.length; i++){
-      this.cpuLabels.push( this.convertTimestamp(this.server.data.stats[i].dttm) );
+      this.cpuLabels.push( this.utils.convertTimestamp(this.server.data.stats[i].dttm) );
       this.cpuProcessUser.push(this.server.data.stats[i].process.user);
       this.cpuProcessSystem.push(this.server.data.stats[i].process.system);
     }
@@ -518,15 +539,23 @@ export class StatsDetailsPage {
   }
 
 
-  segmentChanged(event){
-    console.log(event._value, this.chartType);
-    let loader = this.loadingCtrl.create({
-      content: 'Please wait...'
-    });
-    loader.present();
-    this.load(loader);
+  /**
+   * Changes the view segment between charts. Remebers the last segment displayed.
+   * @param {Event} event Ionic event payload, ignored
+   */
+  segmentChanged(event:Event):void{
+    try{
+      let loader = this.loadingCtrl.create({
+        content: 'Please wait...'
+      });
+      loader.present();
+      this.load(loader);
 
-    window.localStorage.setItem("noditor.lastChartType", this.chartType);
+      window.localStorage.setItem("noditor.lastChartType", this.chartType);
+    }
+    catch(error){
+      this.msg.showError('StatsDetailsPage.segmentChanged', 'Failed to change segment.', error);
+    }
   }
 
 
