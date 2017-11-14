@@ -4,17 +4,19 @@ import { Injectable } from '@angular/core';
 @Injectable()
 
 
-/** Misc common functions
-  */
+/**
+ * Common functions
+ */
 export class UTILS {
 
 
-  /** Returns a "time ago" string repersenting the difference between now and
-    * a dttm passsed.
-    *
-    * dttm => timestamp: date/time to subtract from now
-    */
-  timeAgo = function (dttm) {
+  /**
+   * Returns a "time ago" string repersenting the difference between now and
+     * a dttm passsed.
+   * @param  {string} dttm timestamp string
+   * @return {string}      timestamp converted to seconds, minutes, etc as a string
+   */
+  timeAgo = function (dttm:string):string {
       let dttmSeconds = new Date(dttm).getTime()/1000;
       let nowSeconds = new Date().getTime()/1000;
 
@@ -39,28 +41,56 @@ export class UTILS {
   }
 
 
-  /** Converts a unix timestamp to a human readable DTTM string.
-    *
-    * ts:number => unix timestamp
-    */
-  convertUnixTimestamp(ts){
+  /**
+   * Converts the memory values to MB.
+   * @param  {number} data [description]
+   * @return {string}      MB
+   */
+  convertToMB = function(data):string {
     try{
-      var date = new Date(ts*1000);
-      var year = date.getFullYear();
-      var month = ("0"+(date.getMonth()+1)).substr(-2);
-      var day = ("0"+date.getDate()).substr(-2);
-      var hour = ("0"+date.getHours()).substr(-2);
-      var minutes = ("0"+date.getMinutes()).substr(-2);
-      var seconds = ("0"+date.getSeconds()).substr(-2);
-
-      var hours = date.getHours();
-      var ampm = hours >= 12 ? 'PM' : 'AM'
-
-      return month+"/"+day+"/"+year+" "+hour+":"+minutes+":"+seconds+" "+ampm;
+      return (data/1024/1024).toFixed(2);
     }
     catch(err){
-      return 'UnixTimestamp not converted';
+      throw err;
+    }
+  };
+
+
+  /**
+   * Converts the memory values to GB.
+   * @param  {number} data [description]
+   * @return {string}      MB
+   */
+  convertToGB = function(data):string {
+    try{
+      return (data/1024/1024/1024).toFixed(2);
+    }
+    catch(err){
+      throw err;
+    }
+  };
+
+
+  /**
+   * Converts milliseconds to minutes:secs as a formatted time display.
+   * @param  {number} millis milliseconds
+   * @return {number}        MB
+   */
+  convertTimestamp = function(millis):string {
+    try{
+      millis =1000*Math.round(millis/1000); // round to nearest second
+      var d = new Date(millis);
+
+      var minutes = ("0" + d.getUTCMinutes()).slice(-2);
+      var seconds = ("0" + d.getUTCSeconds()).slice(-2);
+      return String(minutes + ':' + seconds);
+    }
+    catch(err){
+      throw err;
     }
   }
+
+
+
 
 }
