@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, Events, ModalController, AlertController, LoadingController} from 'ionic-angular';
 import { HttpService } from '../../providers/httpService';
 import { ServersService } from '../../providers/serversService';
+import { UTILS } from '../../providers/utils';
 import { StatsDetailsPage } from '../stats/stats-details';
 import { ServerSetupModal } from './server-setup';
 import { MessageComponent } from '../../components/message';
@@ -13,7 +14,14 @@ import { HintsComponent } from '../../components/hints';
   templateUrl: 'servers.html',
   providers:[HintsComponent]
 })
+
+
+/**
+ * Diplays the list of servers known by hte serversService provider.
+ * @type {View}
+ */
 export class ServersPage {
+
 
   servers = [];
   timer:any;
@@ -21,14 +29,29 @@ export class ServersPage {
   showDemos:boolean;
   showHints:boolean;
 
-  constructor(public navCtrl: NavController,
+
+  /**
+   * Class constructor.
+   * @param  {NavController}     navCtrl        Ionic naviagtion controller
+   * @param  {HttpService}       httpService    Common http service
+   * @param  {ServersService}    serversService Common servers service
+   * @param  {Events}            events         Ionic events
+   * @param  {ModalController}   modalCtrl      Ionic modals
+   * @param  {MessageComponent}  msg            Common msg (alert) services
+   * @param  {AlertController}   alertCtrl      Ionic alerts
+   * @param  {LoadingController} loadingCtrl    Ionic loading controller
+   * @param  {UTILS}             utils          Common functions
+   */
+  constructor(
+    public navCtrl: NavController,
     public httpService:HttpService,
     public serversService:ServersService,
     public events:Events,
     public modalCtrl:ModalController,
     public msg:MessageComponent,
     private alertCtrl: AlertController,
-    public loadingCtrl:LoadingController) {
+    public loadingCtrl:LoadingController,
+    private utils:UTILS) {
 
     try{
       // Load demo server flag
@@ -48,8 +71,10 @@ export class ServersPage {
   }
 
 
-  ionViewDidLoad(){
-    console.log('............ ServersPage > ionViewDidLoad - SET EVENTS');
+  /**
+   * Fires once for the life of the app. Loads teh server list, set up events.
+   */
+  ionViewDidLoad():void{
     try{
       this.loadServersFromStorage();
 
@@ -62,7 +87,6 @@ export class ServersPage {
       });
       this.events.subscribe('server:changed', this.serverChangedHandler);
       this.events.subscribe('listRefresh:changed', (val) => {
-        console.log('ServersPage.listRefresh:changed', val);
         this.timeoutValue = parseInt(val);
       });
     }
@@ -72,11 +96,13 @@ export class ServersPage {
   }
 
 
-  ionViewDidEnter(){
-    console.log('............ ServersPage > ionViewDidEnter - START TIMER >', this.timeoutValue);
+  /**
+   * Fires each time this view comes to the front. Starts the refresh timer
+   * and refreshes the view.
+   */
+  ionViewDidEnter():void{
     try{
       var self = this;
-      //console.log('ServersPage.ionViewDidEnter -----------------');
       this.timer = setInterval(
         function(){self.refresh();
       }, this.timeoutValue * 1000);
@@ -88,8 +114,11 @@ export class ServersPage {
   }
 
 
-  ionViewWillLeave(){
-    console.log('............ ServersPage >ionViewWillLeave - ', 'CLEAR TIMER');
+  /**
+   * Fires each time the view is no longer active, goes to the background.
+   * Clears the list refresh timer.
+   */
+  ionViewWillLeave():void{
     try{
       clearInterval(this.timer);
     }
@@ -99,7 +128,11 @@ export class ServersPage {
   }
 
 
-  serverChangedHandler = (server:any) => {
+  /**
+   * Events handler to update a server in the servers list.
+   * @param  {object} event payload with server info
+   */
+  serverChangedHandler = (server:any):void => {
     // Find the server in the servers array and update
     try{
       for(var i=0; i<this.servers.length; i++){
@@ -117,14 +150,16 @@ export class ServersPage {
   }
 
 
-  loadServersFromStorage(){
+  /**
+   * Gets the servers from the serversService (including demos if required).
+   */
+  loadServersFromStorage():void{
     this.serversService.get()
     .then((data: any) => {
       try{
         if(this.showDemos){
           let demos = this.serversService.getDemos();
           this.servers = demos.concat(data);
-          console.log(this.servers)
         }
         else {
           this.servers = data;
@@ -140,7 +175,10 @@ export class ServersPage {
   }
 
 
-  refresh(){
+  /**
+   * Refreshes the servers list stats for each server.
+   */
+  refresh():void{
     try{
       for(var i=0; i<this.servers.length; i++){
         this.load(this.servers[i], null);
@@ -152,32 +190,26 @@ export class ServersPage {
   }
 
 
-  convertToMb = function(data) {
-    try{
-      return (data/1024/1024).toFixed(2);
-    }
-    catch(err){
-      throw err;
-    }
-  };
-
-
-  load(server, loader){
-    //console.log(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top');
+  /**
+   * Gets the stats for a server.
+   * @param {object} server the server to get stats for
+   * @param {LoadingController} loader Ionic loading controller, only presented if not null
+   */
+  load(server:any, loader:any):void{
     if(loader){ loader.present(); }
 
     this.httpService.get(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top', 5)
     .then((data: any) => {
       try{
-        console.log('ServersPage.load', 'Timeout > ', this.timeoutValue, data)
+        //console.log('ServersPage.load', 'Timeout > ', this.timeoutValue, data)
         if(loader) loader.dismiss();
         server.data = data;
         if(server.data.stats){ // stats may not have loaded at the server right at its startup
-          server.data.stats.memoryUsage.heapUsed = this.convertToMb(server.data.stats.memoryUsage.heapUsed);
-          server.data.stats.memoryUsage.heapTotal = this.convertToMb(server.data.stats.memoryUsage.heapTotal);
-          server.data.stats.memoryUsage.rss = this.convertToMb(server.data.stats.memoryUsage.rss);
-          server.data.peaks.peakHeapTotal = this.convertToMb(server.data.peaks.peakHeapTotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          server.data.peaks.peakHeapUsed = this.convertToMb(server.data.peaks.peakHeapUsed).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          server.data.stats.memoryUsage.heapUsed = this.utils.convertToMB(server.data.stats.memoryUsage.heapUsed);
+          server.data.stats.memoryUsage.heapTotal = this.utils.convertToMB(server.data.stats.memoryUsage.heapTotal);
+          server.data.stats.memoryUsage.rss = this.utils.convertToMB(server.data.stats.memoryUsage.rss);
+          server.data.peaks.peakHeapTotal = this.utils.convertToMB(server.data.peaks.peakHeapTotal).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          server.data.peaks.peakHeapUsed = this.utils.convertToMB(server.data.peaks.peakHeapUsed).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           server.data.stats.uptime = ( ((server.data.stats.uptime/60)/60)/24 ).toFixed(2); // days
         }
       }
@@ -185,7 +217,6 @@ export class ServersPage {
         server.data = {status:-1, statusText:error};
       }
     }).catch(error => {
-      console.log('ServersPage.load.outer.catch', error)
       if(loader) loader.dismiss();
       server.data = {status:error.status, statusText:error.statusText};
       if(error.name && error.name ==='TimeoutError'){
@@ -202,7 +233,11 @@ export class ServersPage {
   }
 
 
-  addServer(event){
+  /**
+   * Opens a dialog (ServerSetupModal) to add a new server.
+   * @param {Event} event Ionic event data, ignored
+   */
+  addServer(event:Event):void{
     try{
       let modal = this.modalCtrl.create(ServerSetupModal);
       modal.onDidDismiss(data => { // Returns a server object
@@ -225,14 +260,19 @@ export class ServersPage {
   }
 
 
-  editServer(event, server){
+  /**
+   * Opens a dialog (ServerSetupModal) to update a server.
+   * @param {Event}  event Ionic event data, ignored
+   * @param {object} server and object with the server info
+   */
+  editServer(event:Event, server:any):void{
     try{
       let modal = this.modalCtrl.create(ServerSetupModal, {server:Object.assign({}, server)});
       modal.onDidDismiss(data => { // Returns a server object
                                    // serverChangedHandler() updates the server attributes
         try{
           if(data){
-            this.setRedrawServer(data)
+            this.setAndRedrawServer(data);
           }
         }
         catch(error){
@@ -247,7 +287,12 @@ export class ServersPage {
   }
 
 
-  deleteServer(event, server){
+  /**
+   * Opens a confirmation dialog to delete a server.
+   * @param {Event}   event  Ionic event data, ignored
+   * @param {object}  server an object with the server info
+   */
+  deleteServer(event:Event, server:any):void{
     try{
       let alert = this.alertCtrl.create({
         title: 'Confirm delete',
@@ -289,7 +334,13 @@ export class ServersPage {
   }
 
 
-  pauseOrResume(event, server, command){
+  /**
+   * Pauses or resumes the Noditor Module at the server.
+   * @param  {Event}  event  Ionic event data, ignored
+   * @param  {object} server an object with the server info
+   * @param  {string} command start or stop
+   */
+  pauseOrResume(event:Event, server:any, command:string):void{
     let loader = this.loadingCtrl.create({
       content: 'Please wait...'
     });
@@ -297,7 +348,7 @@ export class ServersPage {
 
     this.httpService.get(server.url+'/noditor/'+server.path+'/'+server.passcode+'/'+command, 5)
     .then((data: any) => {
-      this.setRedrawServer(server);
+      this.setAndRedrawServer(server);
       loader.dismiss();
     }).catch(error => {
       server.data = {status:error.status, statusText:error.statusText};
@@ -309,13 +360,12 @@ export class ServersPage {
   }
 
 
-
   /**
-   * Finds a server by its key, set its attributes, and forces a redraw.
-   * @param  string key [description]
-   * @return none
+   * Updates the server object in the servers list (by key) and then orders a
+   * reload of the server stats.
+   * @param {object} server an object with the server info
    */
-  setRedrawServer(server) {
+  setAndRedrawServer(server:any):void{
     try{
       for(var i=0; i<this.servers.length; i++){
         if(this.servers[i].key == server.key){
@@ -333,9 +383,14 @@ export class ServersPage {
   }
 
 
-  serverSelected(event, server){
+  /**
+   * Moves to the StatsDetailsPage for the selected server.
+   * @param {Event} event  Ionic event data, ignored
+   * @param {any}   server an object with the server info
+   */
+  serverSelected(event:Event, server:any):void{
     // Pass deep copy because the stats view will populate with different data from
-    // the stats command where here we used th top command
+    // the stats command where here we used the top command
     this.navCtrl.push(StatsDetailsPage, {server:Object.assign({}, server)});
   }
 

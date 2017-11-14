@@ -7,6 +7,12 @@ import { LoggerService } from '../providers/loggerService';
 })
 
 
+/**
+ * Displays alert boxes with info passed. In the case of showError the error is
+ * also logged to the logger.
+ * @param  {AlertController} alertCtrl     Ionic alert boxes
+ * @param  {LoggerService}   loggerService Logger service to store messages
+ */
 export class MessageComponent{
 
 
@@ -19,13 +25,13 @@ export class MessageComponent{
   }
 
 
-  /** Displays and error alert and pushes an error to the logger
-    *
-    * location:string => identifies the caller's location (class.method.etc)
-    * msg:string => user friendly summary message to displayed
-    * error:object => error object from caller, pushed to logger
-    */
-  showError(location, msg, error){
+  /**
+   * Logs an error to the logger and displays an alert message.
+   * @param  {string} location code loaction, logger only
+   * @param  {string} msg      message for the sub-title, brief
+   * @param  {any}    error    error object
+   */
+  showError(location:string, msg:string, error:any):void{
     this.loggerService.set('error', location, msg, error);
     let alert = this.alertCtrl.create({
       title: 'Aw Snap...',
@@ -37,12 +43,12 @@ export class MessageComponent{
   }
 
 
-  /** Displays a simple alert dialog
-    *
-    * title:string => title for the dialog
-    * msg:string => message for the dialog
-    */
-  showMessage(title, msg){
+  /**
+   * Displays an alert message.
+   * @param  {string} title alert box title
+   * @param  {string} msg   message for the alert body
+   */
+  showMessage(title:string, msg:string):void{
     let alert = this.alertCtrl.create({
       title: title,
       message: msg,

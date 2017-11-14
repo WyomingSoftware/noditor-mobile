@@ -18,7 +18,7 @@ import { Storage } from '@ionic/storage';
      url:string
  * }
  *
- * @param  {Storage} publicstorage Ionic storage plugin
+ * @param  {Storage} storage Ionic storage plugin
  */
 export class ServersService {
 
@@ -92,9 +92,8 @@ export class ServersService {
   /**
    * Adds or updates a server to the local Ionic storage engine.
    * @param  {object}    server an object that describes the server including its unique key
-   * @return {undefined}
    */
-  set = function(server:any){
+  set = function(server:any):void{
     var self = this;
     let store = {key:server.key, name:server.name, url:server.url,
       path:server.path, passcode:server.passcode};
@@ -105,9 +104,8 @@ export class ServersService {
   /**
    * Removes a server from the local Ionic storage engine.
    * @param  {string} key the unique key of the server object to remove
-   * @return {undefined}
    */
-  remove = function(key:string){
+  remove = function(key:string):void{
       var self = this;
       self.storage.remove(key).then((data) => {});
   }

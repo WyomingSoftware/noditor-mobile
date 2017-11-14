@@ -12,7 +12,7 @@ import { Events } from 'ionic-angular';
  * All messages are stored in the object "logger" using window.localStorage
  * as an array along with a "where" key. The logger messages are considered expendable
  * so if the OS purges them it is acceptable.
- * @param  {Events} publicevents
+ * @param  {Events} events
  */
 export class LoggerService {
 
@@ -37,9 +37,8 @@ export class LoggerService {
      * @param  {string} location location of error or message in source code
      * @param  {string} message  message in string format
      * @param  {any}    data     any object, mostly for errors but could be other data
-     * @return {undefined}
      */
-    set = function(type:string, location:string, message:string, data:any){
+    set = function(type:string, location:string, message:string, data:any):void{
 
       let dataStr = null;
       if(data && type == 'notifications'){

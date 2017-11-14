@@ -92,18 +92,23 @@ import { HintsComponent } from '../../components/hints';
 })
 
 
+/**
+ * Creates or updates a new server.
+ * @type {Modal}
+ */
 export class ServerSetupModal {
 
-  /*{ "key":"noditor-server-1",
+  /*
+    { "key":"noditor-server-1",
       "name":"Demo Server #1",
       "path":null,
       "passcode":null,
-      "url":"http://www.noditor.com"}
+      "url":"http://www.noditor.com"
+    }
   */
 
-
-  theServer:any;
-  theServerCopy:any;
+  theServer:any; // server to update, or template for create server
+  theServerCopy:any; // For diff comparison
   name:string = "https"; // http or https
   url:string;
   path:string;
@@ -114,22 +119,32 @@ export class ServerSetupModal {
   showHints:boolean;
 
 
-  constructor(public viewCtrl: ViewController,
-        navParams:NavParams,
-        public actionSheetCtrl:ActionSheetController,
-        public msg:MessageComponent,
-        public httpService:HttpService,
-        public events:Events,
-        public serversService:ServersService,
-        public loadingCtrl:LoadingController) {
+  /**
+   * Class constructor
+   * @param  {ViewController}        viewCtrl        Ionic View Controller, to dismiss this view
+   * @param  {NavParams}             navParams       Ionic nav parameters
+   * @param  {ActionSheetController} actionSheetCtrl Ionic action sheet
+   * @param  {MessageComponent}      msg             Common service for alerts
+   * @param  {HttpService}           httpService     Common service for http calls
+   * @param  {Events}                events          Ionic events
+   * @param  {ServersService}        serversService  Common service for servers
+   * @param  {LoadingController}     loadingCtrl     Ionic loading controller
+   */
+  constructor(
+      public viewCtrl: ViewController,
+      navParams:NavParams,
+      public actionSheetCtrl:ActionSheetController,
+      public msg:MessageComponent,
+      public httpService:HttpService,
+      public events:Events,
+      public serversService:ServersService,
+      public loadingCtrl:LoadingController) {
 
     this.theServer = navParams.get("server");
     // A server was passed, EDIT
     if(this.theServer){
       if(this.theServer.url && this.theServer.name ){
-        //this.canSubmit = true;
         this.theServerCopy= Object.assign({}, this.theServer);
-
       }
     }
     // No server passed, ADD
@@ -143,8 +158,10 @@ export class ServerSetupModal {
   }
 
 
-
-  validate(){
+  /**
+   * Validates data entry and enables the Save button when conditions are right.
+   */
+  validate():void{
     this.canSubmit = false;
     if( (this.theServer.name && this.theServer.url) &&
       (this.theServer.name != this.theServerCopy.name ||
@@ -156,7 +173,10 @@ export class ServerSetupModal {
   }
 
 
-  save(){
+  /**
+   * Saves the server vis the serversService provider.
+   */
+  save():void{
     let errorMsg = 'Problem saving the server please try again.';
     try{
       this.serversService.set(this.theServer);
@@ -169,8 +189,13 @@ export class ServerSetupModal {
   }
 
 
-  cancel(event) {
-    if(this.canSubmit){//if(this.theServer.url || this.theServer.name ){
+  /**
+   * Prompts the user to cancel if there are data changes.
+   * If there are no data changes then closes the dialog.
+   * @param {Event} event Ionic event data, ignored
+   */
+  cancel(event:Event):void{
+    if(this.canSubmit){
       let actionSheet = this.actionSheetCtrl.create({
         buttons: [
           {
@@ -193,7 +218,11 @@ export class ServerSetupModal {
   }
 
 
-  testConnection(event){
+  /**
+   * Attempts to test the connection for the server.
+   * @param {Event} event Ionic event data, ignored
+   */
+  testConnection(event):void{
     this.testMsg = null;
     let loader = this.loadingCtrl.create({
       content: 'Please wait...'
@@ -202,12 +231,11 @@ export class ServerSetupModal {
 
     this.httpService.get(this.theServer.url+'/noditor/'+this.theServer.path+'/'+this.theServer.passcode+'/top', 5)
     .then((data: any) => {
-      //console.log('ServerSetup.testConnection.DATA', data, data.status)
       loader.dismiss();
-      this.testMsg = "Connected"; // 200, 409, 500
+      this.testMsg = "Connected";
     }).catch(error => {
       loader.dismiss();
-      if(error.status === 409){ // Noditor paused
+      if(error.status === 409){ // 409 - Noditor paused
         this.testMsg = "Connected";
       }
       else{
@@ -215,7 +243,6 @@ export class ServerSetupModal {
       }
     });
   }
-
 
 
 }
