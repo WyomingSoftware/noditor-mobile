@@ -44,7 +44,7 @@ import { HintsComponent } from '../../components/hints';
 
         <ion-item>
           <ion-label floating class="_primary">URL</ion-label>
-          <ion-input type="text" [(ngModel)]="theServer.url" (ngModelChange)="validate()"></ion-input>
+          <ion-input type="url" [(ngModel)]="theServer.url" (ngModelChange)="validate()"></ion-input>
         </ion-item>
 
         <ion-item>
@@ -79,11 +79,11 @@ import { HintsComponent } from '../../components/hints';
           Include the port if not 80 or 443. Do not include any part of the URI or a query string.
           <br/><br/>&nbsp;&nbsp;&nbsp;Example: https://www.noditor.com:8443',
 
-          '<b>Passcode:</b> If you started the Noditor Node Module with a passcode you
+          '<b>Passcode:</b> If you started the Noditor Module with a passcode you
           will need to place it here.',
 
           '<b>Path:</b> This is a placeholder for your load balancer to use and direct the URL to the
-          proper server. It is ignored by the Noditor Node Module.
+          proper server. It is ignored by the Noditor Module.
           If you are not directing the URL with a load balancer leave this empty.']">
       </hints-selector>
 
