@@ -91,7 +91,8 @@
 
   <!-- HINTS -->
     <hints-selector *ngIf="showHints === true && loaded"
-        [hints]="['<b>Heap:</b> Shows heapTotal and heapUsed as related to V8 memory usage in MB.',
+        [hints]="['<b>Heap:</b> Shows Heap Total and Heap Used as related to V8 memory usage in MB.
+        RSS is the total memory allocated for the process execution.',
 
         '<b>External:</b> Shows the memory usage of C++ objects bound to JavaScript objects managed by V8 in MB.',
 
