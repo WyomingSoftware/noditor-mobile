@@ -2,6 +2,8 @@
 # http://git-scm.com/docs/gitignore
 
 INTERNAL.md
+android-noditor-release-key.keystore
+app-store-noditor-distribution-signed-key.p12
 
 *~
 *.sw[mnpcod]
