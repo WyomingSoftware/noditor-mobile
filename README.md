@@ -1,13 +1,9 @@
 
 ## Noditor Mobile App
-The Noditor Mobile App is a Node.js developer tool.
+The Noditor Mobile App is part of the Noditor Monitor System for Node.js. The Noditor Mobile App connects to any Node.js App running the Noditor Module (npm install noditor --save). Learn more about the Noditor Monitoring System on **[GitHub](https://github.com/WyomingSoftware/noditor)** or  **[NPM](https://www.npmjs.com/package/noditor)**.
 
-The Noditor Mobile App connects to any Node.js Server App. The Node.js Server App must have the Noditor Module installed (npm install noditor --save).
-
-The Noditor Module gathers and maintains a small amount of runtime statistics that can be accessed via a single REST endpoint.
-
-Once the Node.js Server App is up and running the Noditor Mobile App can gather stats from the Noditor Module and display graphs as well as other high-level data.
+The Noditor Module gathers and maintains a small amount of runtime statistics that can be accessed via a single REST endpoint. Once a Node.js App is up and running the Noditor Mobile App can gather stats from the Noditor Module and display graphs as well as other high-level data.
 
 The Noditor Mobile App and Noditor Module are free.
 
-<!--![App Stores](./src/assets/appstores-small.jpg)-->
+![App Stores](https://raw.githubusercontent.com/WyomingSoftware/noditor-mobile/master/non-app-assets/appstores-small.jpg)
