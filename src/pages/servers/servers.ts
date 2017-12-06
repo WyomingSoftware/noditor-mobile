@@ -198,7 +198,13 @@ export class ServersPage {
   load(server:any, loader:any):void{
     if(loader){ loader.present(); }
 
-    this.httpService.get(server.url+'/noditor/'+server.path+'/'+server.passcode+'/top', 5)
+    // The path or passcode cannot be null
+    var path = server.path;
+    if(!server.path) path = '-';
+    var passcode = server.passcode;
+    if(!server.passcode) passcode = '-';
+
+    this.httpService.get(server.url+'/noditor/'+path+'/'+passcode+'/top', 5)
     .then((data: any) => {
       try{
         //console.log('ServersPage.load', 'Timeout > ', this.timeoutValue, data)
