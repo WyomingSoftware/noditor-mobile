@@ -76,15 +76,14 @@ import { HintsComponent } from '../../components/hints';
           [hints]="['<b>Name:</b> A descriptive name for the server. For display purposes only.',
 
           '<b>URL:</b> The full URL to the server including the communication protocol (http or https).
-          Include the port if not 80 or 443. Do not include any part of the URI or a query string.
+          Include the port if not 80 or 443. Do not include any part of an endpoint call or a query string.
           <br/><br/>&nbsp;&nbsp;&nbsp;Example: https://www.noditor.com:8443',
 
-          '<b>Passcode:</b> If you started the Noditor Module with a passcode you
-          will need to place it here.',
+          '<b>Passcode:</b> If the Noditor Module was stated with a passcode, place it here.',
 
-          '<b>Path:</b> This is a placeholder for your load balancer to use and direct the URL to the
+          '<b>Path:</b> This is a placeholder for a load balancer to use and direct the URL to the
           proper server. It is ignored by the Noditor Module.
-          If you are not directing the URL with a load balancer leave this empty.']">
+          Leave this empty when not directing the URL via a load balancer.']">
       </hints-selector>
 
     </ion-content>
@@ -229,7 +228,13 @@ export class ServerSetupModal {
     });
     loader.present();
 
-    this.httpService.get(this.theServer.url+'/noditor/'+this.theServer.path+'/'+this.theServer.passcode+'/top', 5)
+    // The path or passcode cannot be null
+    var path = this.theServer.path;
+    if(!this.theServer.path) path = '-';
+    var passcode = this.theServer.passcode;
+    if(!this.theServer.passcode) passcode = '-';
+
+    this.httpService.get(this.theServer.url+'/noditor/'+path+'/'+passcode+'/top', 5)
     .then((data: any) => {
       loader.dismiss();
       this.testMsg = "Connected";

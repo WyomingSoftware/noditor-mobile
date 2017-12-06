@@ -387,7 +387,14 @@ export class StatsDetailsPage {
   load(loader):void{
     this.errorMsg = null;
     this.errorHints = false;
-    this.httpService.get(this.server.url+'/noditor/'+this.server.path+'/'+this.server.passcode+'/stats', 5)
+
+    // The path or passcode cannot be null
+    var path = this.server.path;
+    if(!this.server.path) path = '-';
+    var passcode = this.server.passcode;
+    if(!this.server.passcode) passcode = '-';
+
+    this.httpService.get(this.server.url+'/noditor/'+path+'/'+passcode+'/stats', 5)
     .then((data: any) => {
       try{
         //console.log('StatsDetailsPage.load DATA', 'timer value >', this.timeoutValue, data)
