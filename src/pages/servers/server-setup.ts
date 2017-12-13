@@ -82,8 +82,7 @@ import { HintsComponent } from '../../components/hints';
           '<b>Passcode:</b> If the Noditor Module was stated with a passcode, place it here.',
 
           '<b>Path:</b> This is a placeholder for a load balancer to use and direct the URL to the
-          proper server. It is ignored by the Noditor Module.
-          Leave this empty when not directing the URL via a load balancer.']">
+          proper server. It is ignored by the Noditor Module.']">
       </hints-selector>
 
     </ion-content>
