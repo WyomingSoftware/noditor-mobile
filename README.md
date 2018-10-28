@@ -1,4 +1,5 @@
-
+# This repo is now deprecated. No further development is planned. The apps have been removed from the app stores.
+---
 ## Noditor Mobile App
 The Noditor Mobile App is part of the Noditor Monitor System for Node.js. The Noditor Mobile App connects to any Node.js App running the Noditor Module (npm install noditor --save). Learn more about the Noditor Monitoring System on **[GitHub](https://github.com/WyomingSoftware/noditor)** or  **[NPM](https://www.npmjs.com/package/noditor)**.
 
